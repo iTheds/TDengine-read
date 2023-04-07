@@ -32,7 +32,7 @@ char     tsLocalEp[TSDB_EP_LEN] = {0};  // Local End Point, hostname:port
 uint16_t tsServerPort = 6030;
 int32_t  tsVersion = 30000000;
 int32_t  tsStatusInterval = 1;  // second
-int32_t  tsNumOfSupportVnodes = 256;
+int32_t  tsNumOfSupportVnodes = 1;//256
 
 // common
 int32_t tsMaxShellConns = 50000;
@@ -41,18 +41,18 @@ bool    tsPrintAuth = false;
 
 // queue & threads
 int32_t tsNumOfRpcThreads = 1;
-int32_t tsNumOfCommitThreads = 2;
-int32_t tsNumOfTaskQueueThreads = 4;
-int32_t tsNumOfMnodeQueryThreads = 4;
+int32_t tsNumOfCommitThreads = 1;
+int32_t tsNumOfTaskQueueThreads = 1;
+int32_t tsNumOfMnodeQueryThreads = 1;
 int32_t tsNumOfMnodeFetchThreads = 1;
 int32_t tsNumOfMnodeReadThreads = 1;
-int32_t tsNumOfVnodeQueryThreads = 4;
+int32_t tsNumOfVnodeQueryThreads = 1;
 float   tsRatioOfVnodeStreamThreads = 1.0;
-int32_t tsNumOfVnodeFetchThreads = 4;
-int32_t tsNumOfVnodeRsmaThreads = 2;
-int32_t tsNumOfQnodeQueryThreads = 4;
+int32_t tsNumOfVnodeFetchThreads = 1;
+int32_t tsNumOfVnodeRsmaThreads = 1;
+int32_t tsNumOfQnodeQueryThreads = 1;
 int32_t tsNumOfQnodeFetchThreads = 1;
-int32_t tsNumOfSnodeStreamThreads = 4;
+int32_t tsNumOfSnodeStreamThreads = 1;
 int32_t tsNumOfSnodeWriteThreads = 1;
 
 // sync raft

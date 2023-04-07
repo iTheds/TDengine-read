@@ -554,6 +554,9 @@ static int32_t mndProcessQueryHeartBeat(SMnode *pMnode, SRpcMsg *pMsg, SClientHb
   return TSDB_CODE_SUCCESS;
 }
 
+/*
+* 心跳机制
+*/
 static int32_t mndProcessHeartBeatReq(SRpcMsg *pReq) {
   SMnode *pMnode = pReq->info.node;
 

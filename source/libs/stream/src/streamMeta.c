@@ -132,7 +132,7 @@ FAIL:
 #if 1
 int32_t streamMetaAddTask(SStreamMeta* pMeta, int64_t ver, SStreamTask* pTask) {
   void* buf = NULL;
-  if (pMeta->expandFunc(pMeta->ahandle, pTask, ver) < 0) {
+  if (pMeta->expandFunc(pMeta->ahandle, pTask, ver) < 0) {//可能为 tqExpandTask/
     return -1;
   }
 
@@ -193,6 +193,10 @@ SStreamTask* streamMetaAcquireTask(SStreamMeta* pMeta, int32_t taskId) {
   return NULL;
 }
 
+/*
+* 释放 pTask ；
+* 只有 pTask 被使用。
+*/
 void streamMetaReleaseTask(SStreamMeta* pMeta, SStreamTask* pTask) {
   int32_t left = atomic_sub_fetch_32(&pTask->refCnt, 1);
   ASSERT(left >= 0);

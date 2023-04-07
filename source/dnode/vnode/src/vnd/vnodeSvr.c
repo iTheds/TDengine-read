@@ -205,6 +205,8 @@ int32_t vnodeProcessWriteMsg(SVnode *pVnode, SRpcMsg *pMsg, int64_t version, SRp
   len = pMsg->contLen - sizeof(SMsgHead);
   bool needCommit = false;
 
+
+
   switch (pMsg->msgType) {
     /* META */
     case TDMT_VND_CREATE_STB:

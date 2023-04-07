@@ -592,6 +592,9 @@ void mndStop(SMnode *pMnode) {
   mndCleanupTimer(pMnode);
 }
 
+/*
+* 使用节点 : mnode-sync
+*/
 int32_t mndProcessSyncMsg(SRpcMsg *pMsg) {
   SMnode    *pMnode = pMsg->info.node;
   SSyncMgmt *pMgmt = &pMnode->syncMgmt;
@@ -599,7 +602,7 @@ int32_t mndProcessSyncMsg(SRpcMsg *pMsg) {
   const STraceId *trace = &pMsg->info.traceId;
   mGTrace("vgId:1, sync msg:%p will be processed, type:%s", pMsg, TMSG_INFO(pMsg->msgType));
 
-  int32_t code = syncProcessMsg(pMgmt->sync, pMsg);
+  int32_t code = syncProcessMsg(pMgmt->sync, pMsg);//执行方法关键步骤
   if (code != 0) {
     mGError("vgId:1, failed to process sync msg:%p type:%s since %s", pMsg, TMSG_INFO(pMsg->msgType), terrstr());
   }
@@ -704,7 +707,8 @@ int32_t mndProcessRpcMsg(SRpcMsg *pMsg) {
   if (mndCheckMnodeState(pMsg) != 0) return -1;
 
   mGTrace("msg:%p, start to process in mnode, app:%p type:%s", pMsg, pMsg->info.ahandle, TMSG_INFO(pMsg->msgType));
-  int32_t code = (*fp)(pMsg);
+
+  int32_t code = (*fp)(pMsg);//执行关键方法处
   mndReleaseRpc(pMnode);
 
   if (code == TSDB_CODE_ACTION_IN_PROGRESS) {

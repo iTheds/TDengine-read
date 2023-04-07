@@ -115,6 +115,7 @@ void rpcCloseImpl(void* arg) {
   taosMemoryFree(pRpc);
 }
 
+// rpc 远程调用相关，将会增加一个消息头(`STransMsgHead`)的内存 
 void* rpcMallocCont(int64_t contLen) {
   int64_t size = contLen + TRANS_MSG_OVERHEAD;
   char*   start = taosMemoryCalloc(1, size);

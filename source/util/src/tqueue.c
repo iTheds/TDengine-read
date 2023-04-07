@@ -108,7 +108,10 @@ int64_t taosQueueMemorySize(STaosQueue *queue) {
   taosThreadMutexUnlock(&queue->mutex);
   return memOfItems;
 }
-// 分配
+/* 分配 size 量的 STaosQnode ，其内部可存放 dataSize 空间内容
+* 返回的是 该 STaosQnode 的 item ，这个 item 一般就是 SRpcMsg 。
+* 在 mnode 中， 存的方法是通过 SRpcMsg 的 msgType 进行匹配定位，应该是一个 token 。
+*/
 void *taosAllocateQitem(int32_t size, EQItype itype, int64_t dataSize) {
   STaosQnode *pNode = taosMemoryCalloc(1, sizeof(STaosQnode) + size);
   if (pNode == NULL) {
@@ -139,6 +142,7 @@ void *taosAllocateQitem(int32_t size, EQItype itype, int64_t dataSize) {
   return pNode->item;
 }
 
+// tsRpcQueueMemoryUsed 减去 pItem 所据有的实际数据空间，并且释放 pItem 关联的 pNode 。
 void taosFreeQitem(void *pItem) {
   if (pItem == NULL) return;
 
@@ -153,6 +157,10 @@ void taosFreeQitem(void *pItem) {
   taosMemoryFree(pNode);
 }
 
+/* 写入到指定 queue 中， 并且通知读取方进行读取
+* 该部分中， pItem 通过指针减运算， 复原出 pItem 地址前的 STaosQnode 
+* 但是这部分到底存的是什么还有待商榷
+*/
 void taosWriteQitem(STaosQueue *queue, void *pItem) {
   STaosQnode *pNode = (STaosQnode *)(((char *)pItem) - sizeof(STaosQnode));
   pNode->next = NULL;

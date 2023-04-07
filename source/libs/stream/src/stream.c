@@ -16,9 +16,13 @@
 #include "streamInc.h"
 #include "ttimer.h"
 
+//初始化 vnode-stream 时调用， 仅当 inited 为 0 时生效一次
 int32_t streamInit() {
   int8_t old;
   while (1) {
+    // 原子操作函数`__sync_val_compare_and_swap`， 寄托于单个变量；
+    //此处判断 streamEnv.inited 是否与 0 相等， 如果相等则将 2 复写到 streamEnv.inited；
+    // 返回 streamEnv.inited 的值
     old = atomic_val_compare_exchange_8(&streamEnv.inited, 0, 2);
     if (old != 2) break;
   }
@@ -34,6 +38,7 @@ int32_t streamInit() {
   return 0;
 }
 
+/* 清理环境，将 streamEnv 中的内容清空， 如果 inited 为 1 */
 void streamCleanUp() {
   int8_t old;
   while (1) {
@@ -47,15 +52,22 @@ void streamCleanUp() {
   }
 }
 
+/* 
+* param : 标志一个 task，
+* tmrId : 标志一个时间，未被使用；
+*/
 void streamSchedByTimer(void* param, void* tmrId) {
   SStreamTask* pTask = (void*)param;
 
+  // 如果任务处于 dropping 中，释放该任务并且返回。
   if (atomic_load_8(&pTask->taskStatus) == TASK_STATUS__DROPPING) {
     streamMetaReleaseTask(NULL, pTask);
     return;
   }
 
+  // 如果触发状态为 active，设立一个流触发器，将其设为 inactive。
   if (atomic_load_8(&pTask->triggerStatus) == TASK_TRIGGER_STATUS__ACTIVE) {
+    // 分配流触发器，其类型为 STREAM_INPUT__GET_RES (需要得到结果集) 
     SStreamTrigger* trigger = taosAllocateQitem(sizeof(SStreamTrigger), DEF_QITEM, 0);
     if (trigger == NULL) return;
     trigger->type = STREAM_INPUT__GET_RES;
@@ -68,6 +80,7 @@ void streamSchedByTimer(void* param, void* tmrId) {
 
     atomic_store_8(&pTask->triggerStatus, TASK_TRIGGER_STATUS__INACTIVE);
 
+    // 将 trigger 写入到 pTask 的 queue 中， 执行
     if (streamTaskInput(pTask, (SStreamQueueItem*)trigger) < 0) {
       taosFreeQitem(trigger);
       taosTmrReset(streamSchedByTimer, (int32_t)pTask->triggerParam, pTask, streamEnv.timer, &pTask->timer);
@@ -76,6 +89,7 @@ void streamSchedByTimer(void* param, void* tmrId) {
     streamSchedExec(pTask);
   }
 
+  // 重置 pTask 中的 某些部分??? 暂未查看
   taosTmrReset(streamSchedByTimer, (int32_t)pTask->triggerParam, pTask, streamEnv.timer, &pTask->timer);
 }
 
@@ -89,10 +103,12 @@ int32_t streamSetupTrigger(SStreamTask* pTask) {
   return 0;
 }
 
+/* 以 pTask 生成一个计划(schedule)，存入 SRpcMsg ，根据 pTask->pMsgCb 进行发送到指定目标 。*/
 int32_t streamSchedExec(SStreamTask* pTask) {
   int8_t schedStatus =
       atomic_val_compare_exchange_8(&pTask->schedStatus, TASK_SCHED_STATUS__INACTIVE, TASK_SCHED_STATUS__WAITING);
   if (schedStatus == TASK_SCHED_STATUS__INACTIVE) {
+
     SStreamTaskRunReq* pRunReq = rpcMallocCont(sizeof(SStreamTaskRunReq));
     if (pRunReq == NULL) {
       atomic_store_8(&pTask->schedStatus, TASK_SCHED_STATUS__INACTIVE);
@@ -111,6 +127,7 @@ int32_t streamSchedExec(SStreamTask* pTask) {
   return 0;
 }
 
+//将 pTask 放入到发送队列 - 即直接发送
 int32_t streamTaskEnqueue(SStreamTask* pTask, const SStreamDispatchReq* pReq, SRpcMsg* pRsp) {
   SStreamDataBlock* pData = taosAllocateQitem(sizeof(SStreamDataBlock), DEF_QITEM, 0);
   int8_t            status;
@@ -149,6 +166,9 @@ int32_t streamTaskEnqueue(SStreamTask* pTask, const SStreamDispatchReq* pReq, SR
   return status == TASK_INPUT_STATUS__NORMAL ? 0 : -1;
 }
 
+/* 我认为该处是主动取回，因为有一个先发送 pReq的操作。
+* 虽然该部分没有取回，猜测应该是会通过 svr 接受模型进行将结果取回。
+*/
 int32_t streamTaskEnqueueRetrieve(SStreamTask* pTask, SStreamRetrieveReq* pReq, SRpcMsg* pRsp) {
   SStreamDataBlock* pData = taosAllocateQitem(sizeof(SStreamDataBlock), DEF_QITEM, 0);
   int8_t            status = TASK_INPUT_STATUS__NORMAL;

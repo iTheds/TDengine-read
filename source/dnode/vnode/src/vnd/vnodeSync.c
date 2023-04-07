@@ -265,6 +265,7 @@ void vnodeProposeWriteMsg(SQueueInfo *pInfo, STaosQall *qall, int32_t numOfMsgs)
 
 #else
 
+/* 使用节点 vnode-write */
 void vnodeProposeWriteMsg(SQueueInfo *pInfo, STaosQall *qall, int32_t numOfMsgs) {
   SVnode  *pVnode = pInfo->ahandle;
   int32_t  vgId = pVnode->config.vgId;

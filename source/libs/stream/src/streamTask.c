@@ -16,6 +16,10 @@
 #include "executor.h"
 #include "tstream.h"
 
+/* 根据一个 id 新建一个流 task
+* 该流的 id 是指定的 id 
+* 但是任务 id 是根据系统生成的唯一 id ，形如 "46fc9c5d-4d63-419c-ba64-9d9dc999f579"
+*/
 SStreamTask* tNewSStreamTask(int64_t streamId) {
   SStreamTask* pTask = (SStreamTask*)taosMemoryCalloc(1, sizeof(SStreamTask));
   if (pTask == NULL) {
@@ -30,6 +34,8 @@ SStreamTask* tNewSStreamTask(int64_t streamId) {
   return pTask;
 }
 
+/* 将 pInfo 中的内容编码入 pEncoder
+*/
 int32_t tEncodeStreamEpInfo(SEncoder* pEncoder, const SStreamChildEpInfo* pInfo) {
   if (tEncodeI32(pEncoder, pInfo->taskId) < 0) return -1;
   if (tEncodeI32(pEncoder, pInfo->nodeId) < 0) return -1;
@@ -39,6 +45,8 @@ int32_t tEncodeStreamEpInfo(SEncoder* pEncoder, const SStreamChildEpInfo* pInfo)
   return 0;
 }
 
+/* 将 pInfo 中的内容解码入 pDecoder
+*/
 int32_t tDecodeStreamEpInfo(SDecoder* pDecoder, SStreamChildEpInfo* pInfo) {
   if (tDecodeI32(pDecoder, &pInfo->taskId) < 0) return -1;
   if (tDecodeI32(pDecoder, &pInfo->nodeId) < 0) return -1;
@@ -48,6 +56,8 @@ int32_t tDecodeStreamEpInfo(SDecoder* pDecoder, SStreamChildEpInfo* pInfo) {
   return 0;
 }
 
+/* 将 pTask 中的内容编码入 pEncoder
+*/
 int32_t tEncodeSStreamTask(SEncoder* pEncoder, const SStreamTask* pTask) {
   if (tStartEncode(pEncoder) < 0) return -1;
   if (tEncodeI64(pEncoder, pTask->streamId) < 0) return -1;
@@ -101,6 +111,8 @@ int32_t tEncodeSStreamTask(SEncoder* pEncoder, const SStreamTask* pTask) {
   return pEncoder->pos;
 }
 
+/* 将 pDecoder 中的内容解码为 pTask ，也称为反序列化
+*/
 int32_t tDecodeSStreamTask(SDecoder* pDecoder, SStreamTask* pTask) {
   if (tStartDecode(pDecoder) < 0) return -1;
   if (tDecodeI64(pDecoder, &pTask->streamId) < 0) return -1;

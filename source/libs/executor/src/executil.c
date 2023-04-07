@@ -400,7 +400,7 @@ static SColumnInfoData* getColInfoResult(void* metaHandle, int64_t suid, SArray*
   SScalarParam output = {0};
 
   tagFilterAssist ctx = {0};
-
+  //生成 hash 方法列
   ctx.colHash = taosHashInit(4, taosGetDefaultHashFunction(TSDB_DATA_TYPE_SMALLINT), false, HASH_NO_LOCK);
   if (ctx.colHash == NULL) {
     terrno = TSDB_CODE_OUT_OF_MEMORY;
@@ -447,7 +447,7 @@ static SColumnInfoData* getColInfoResult(void* metaHandle, int64_t suid, SArray*
   if (rows == 0) {
     goto end;
   }
-
+  // 数据块
   code = blockDataEnsureCapacity(pResBlock, rows);
   if (code != TSDB_CODE_SUCCESS) {
     terrno = code;
@@ -543,7 +543,7 @@ static void releaseColInfoData(void* pCol) {
     taosMemoryFree(col);
   }
 }
-
+//抽取整个 SNodeList 的列信息
 int32_t getColInfoResultForGroupby(void* metaHandle, SNodeList* group, STableListInfo* pTableListInfo) {
   int32_t      code = TSDB_CODE_SUCCESS;
   SArray*      pBlockList = NULL;
@@ -630,10 +630,11 @@ int32_t getColInfoResultForGroupby(void* metaHandle, SNodeList* group, STableLis
 
         STagVal tagVal = {0};
         tagVal.cid = pColInfo->info.colId;
+        //根据目前的信息解析成 STagVal = p
         const char* p = metaGetTableTagVal(tag, pColInfo->info.type, &tagVal);
 
         if (p == NULL || (pColInfo->info.type == TSDB_DATA_TYPE_JSON && ((STag*)p)->nTag == 0)) {
-          colDataAppend(pColInfo, i, p, true);
+          colDataAppend(pColInfo, i, p, true);//将 tag 信息转换成 表的列信息作为超级表的聚合标准
         } else if (pColInfo->info.type == TSDB_DATA_TYPE_JSON) {
           colDataAppend(pColInfo, i, p, false);
         } else if (IS_VAR_DATA_TYPE(pColInfo->info.type)) {
@@ -659,7 +660,7 @@ int32_t getColInfoResultForGroupby(void* metaHandle, SNodeList* group, STableLis
     }
   }
 
-  pResBlock->info.rows = rows;
+  pResBlock->info.rows = rows;//负载行数
 
   //  int64_t st1 = taosGetTimestampUs();
   //  qDebug("generate tag block rows:%d, cost:%ld us", rows, st1-st);
@@ -967,6 +968,7 @@ static int32_t optimizeTbnameInCondImpl(void* metaHandle, int64_t suid, SArray* 
   return -1;
 }
 
+//生成标记塞选器摘要
 static void genTagFilterDigest(const SNode* pTagCond, T_MD5_CTX* pContext) {
   if (pTagCond == NULL) {
     return;
@@ -982,7 +984,7 @@ static void genTagFilterDigest(const SNode* pTagCond, T_MD5_CTX* pContext) {
 
   taosMemoryFree(payload);
 }
-
+/* 通过标签集合进行塞选*/
 static int32_t doFilterByTagCond(STableListInfo* pListInfo, SArray* res, SNode* pTagCond, void* metaHandle) {
   if (pTagCond == NULL) {
     return TSDB_CODE_SUCCESS;
@@ -1044,7 +1046,7 @@ int32_t getTableList(void* metaHandle, void* pVnode, SScanPhysiNode* pScanNode, 
       return code;
     }
   } else {
-    // try to retrieve the result from meta cache
+    // try to retrieve the result from meta cache ，尝试从 meta 缓存中取回结果
     T_MD5_CTX context = {0};
     genTagFilterDigest(pTagCond, &context);
 
@@ -1055,7 +1057,7 @@ int32_t getTableList(void* metaHandle, void* pVnode, SScanPhysiNode* pScanNode, 
       goto _end;
     }
 
-    if (!pTagCond) {  // no tag condition exists, let's fetch all tables of this super table
+    if (!pTagCond) {  // 不存在标记条件，则获取这个超级表的所有表
       ASSERT(pTagIndexCond == NULL);
       vnodeGetCtbIdList(pVnode, pScanNode->suid, res);
     } else {
@@ -1074,7 +1076,7 @@ int32_t getTableList(void* metaHandle, void* pVnode, SScanPhysiNode* pScanNode, 
     }
 
     code = doFilterByTagCond(pListInfo, res, pTagCond, metaHandle);
-    if (code != TSDB_CODE_SUCCESS) {
+    if (code != TSDB_CODE_SUCCESS) {//不符合标签规则
       return code;
     }
 
@@ -1989,6 +1991,7 @@ int32_t buildGroupIdMapForAllTables(STableListInfo* pTableListInfo, SReadHandle*
   return code;
 }
 
+/* 扫描表信息 */
 int32_t createScanTableListInfo(SScanPhysiNode* pScanNode, SNodeList* pGroupTags, bool groupSort, SReadHandle* pHandle,
                                 STableListInfo* pTableListInfo, SNode* pTagCond, SNode* pTagIndexCond,
                                 SExecTaskInfo* pTaskInfo) {
@@ -1999,7 +2002,7 @@ int32_t createScanTableListInfo(SScanPhysiNode* pScanNode, SNodeList* pGroupTags
     qError("invalid handle, in creating operator tree, %s", idStr);
     return TSDB_CODE_INVALID_PARA;
   }
-
+  //获取表信息，不进行通信
   int32_t code = getTableList(pHandle->meta, pHandle->vnode, pScanNode, pTagCond, pTagIndexCond, pTableListInfo);
   if (code != TSDB_CODE_SUCCESS) {
     qError("failed to getTableList, code: %s", tstrerror(code));

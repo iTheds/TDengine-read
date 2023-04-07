@@ -374,6 +374,7 @@ int32_t streamSearchAndAddBlock(SStreamTask* pTask, SStreamDispatchReq* pReqs, S
   return 0;
 }
 
+//根据数据块分派 stream 
 int32_t streamDispatchAllBlocks(SStreamTask* pTask, const SStreamDataBlock* pData) {
   int32_t code = -1;
   int32_t blockNum = taosArrayGetSize(pData->blocks);
@@ -491,6 +492,7 @@ int32_t streamDispatchAllBlocks(SStreamTask* pTask, const SStreamDataBlock* pDat
   return 0;
 }
 
+//派遣流
 int32_t streamDispatch(SStreamTask* pTask) {
   ASSERT(pTask->outputType == TASK_OUTPUT__FIXED_DISPATCH || pTask->outputType == TASK_OUTPUT__SHUFFLE_DISPATCH);
 

@@ -44,6 +44,9 @@ static inline void mmSendRsp(SRpcMsg *pMsg, int32_t code) {
   tmsgSendRsp(&rsp);
 }
 
+/*
+* 使用节点记录：mnode-read,mnode-write
+*/
 static void mmProcessRpcMsg(SQueueInfo *pInfo, SRpcMsg *pMsg) {
   SMnodeMgmt *pMgmt = pInfo->ahandle;
   pMsg->info.node = pMgmt->pMnode;
@@ -70,6 +73,9 @@ static void mmProcessRpcMsg(SQueueInfo *pInfo, SRpcMsg *pMsg) {
   taosFreeQitem(pMsg);
 }
 
+/*
+* 使用的节点 : mnode-sync
+*/
 static void mmProcessSyncMsg(SQueueInfo *pInfo, SRpcMsg *pMsg) {
   SMnodeMgmt *pMgmt = pInfo->ahandle;
   pMsg->info.node = pMgmt->pMnode;

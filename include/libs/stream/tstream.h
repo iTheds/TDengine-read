@@ -140,6 +140,9 @@ typedef struct {
   int8_t type;
 } SStreamCheckpoint;
 
+/* 流触发器 
+*  
+*/
 typedef struct {
   int8_t       type;
   SSDataBlock* pBlock;
@@ -275,6 +278,9 @@ typedef struct {
   SEpSet  epSet;
 } SStreamChildEpInfo;
 
+/*
+* 流任务 
+*/
 typedef struct SStreamTask {
   int64_t streamId;
   int32_t taskId;
@@ -295,7 +301,7 @@ typedef struct SStreamTask {
   int64_t startVer;
 
   // fill history
-  int8_t fillHistory;
+  int8_t fillHistory;//历史？？？
 
   // children info
   SArray* childEpInfo;  // SArray<SStreamChildEpInfo*>
@@ -353,6 +359,11 @@ int32_t      tEncodeSStreamTask(SEncoder* pEncoder, const SStreamTask* pTask);
 int32_t      tDecodeSStreamTask(SDecoder* pDecoder, SStreamTask* pTask);
 void         tFreeSStreamTask(SStreamTask* pTask);
 
+/*
+* 将 pItem 写入到 pTask 中的 queue 中；
+* 未来计划以不同的方式；
+* 将 pTask 的 triggerStatus 触发状态调整为 active. 
+*/
 static FORCE_INLINE int32_t streamTaskInput(SStreamTask* pTask, SStreamQueueItem* pItem) {
   int8_t type = pItem->type;
   if (type == STREAM_INPUT__DATA_SUBMIT) {
@@ -598,7 +609,7 @@ int32_t streamProcessRecoverFinishReq(SStreamTask* pTask, int32_t childId);
 // expand and deploy
 typedef int32_t FTaskExpand(void* ahandle, SStreamTask* pTask, int64_t ver);
 
-// meta
+// 流元数据
 typedef struct SStreamMeta {
   char*        path;
   TDB*         db;

@@ -440,15 +440,18 @@ int32_t qGetQueryTableSchemaVersion(qTaskInfo_t tinfo, char* dbName, char* table
   return 0;
 }
 
+/* 创建可执行任务？？ */
 int32_t qCreateExecTask(SReadHandle* readHandle, int32_t vgId, uint64_t taskId, SSubplan* pSubplan,
                         qTaskInfo_t* pTaskInfo, DataSinkHandle* handle, char* sql, EOPTR_EXEC_MODEL model) {
   assert(pSubplan != NULL);
   SExecTaskInfo** pTask = (SExecTaskInfo**)pTaskInfo;
 
+  // 只进行一次的初始化
   taosThreadOnce(&initPoolOnce, initRefPool);
 
   qDebug("start to create subplan task, TID:0x%" PRIx64 " QID:0x%" PRIx64, taskId, pSubplan->id.queryId);
 
+  // 创建任务消息
   int32_t code = createExecTaskInfoImpl(pSubplan, pTask, readHandle, taskId, sql, model);
   if (code != TSDB_CODE_SUCCESS) {
     qError("failed to createExecTaskInfoImpl, code: %s", tstrerror(code));

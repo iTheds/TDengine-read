@@ -15,6 +15,7 @@
 
 #include "streamInc.h"
 
+/* 创建一个流实体 ，可以用于输入或者输出，可能为单信道，不可同时输入和输出对同一个目标*/
 SStreamQueue* streamQueueOpen() {
   SStreamQueue* pQueue = taosMemoryCalloc(1, sizeof(SStreamQueue));
   if (pQueue == NULL) return NULL;

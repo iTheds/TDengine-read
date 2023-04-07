@@ -299,7 +299,7 @@ SSubmitReq* tqBlockToSubmit(SVnode* pVnode, const SArray* pBlocks, const STSchem
 
   return ret;
 }
-
+//下沉到表管道
 void tqSinkToTablePipeline(SStreamTask* pTask, void* vnode, int64_t ver, void* data) {
   const SArray*   pBlocks = (const SArray*)data;
   SVnode*         pVnode = (SVnode*)vnode;

@@ -1975,6 +1975,7 @@ static SExecTaskInfo* createExecTaskInfo(uint64_t queryId, uint64_t taskId, EOPT
 
 SSchemaWrapper* extractQueriedColumnSchema(SScanPhysiNode* pScanNode);
 
+//获取表格式信息
 int32_t extractTableSchemaInfo(SReadHandle* pHandle, SScanPhysiNode* pScanNode, SExecTaskInfo* pTaskInfo) {
   SMetaReader mr = {0};
   metaReaderInit(&mr, pHandle->meta, 0);
@@ -2069,23 +2070,27 @@ bool groupbyTbname(SNodeList* pGroupList) {
   return bytbname;
 }
 
+/* 产生算子树
+* 递归方法 
+*/
 SOperatorInfo* createOperatorTree(SPhysiNode* pPhyNode, SExecTaskInfo* pTaskInfo, SReadHandle* pHandle, SNode* pTagCond,
                                   SNode* pTagIndexCond, const char* pUser) {
   int32_t         type = nodeType(pPhyNode);
   STableListInfo* pTableListInfo = pTaskInfo->pTableInfoList;
   const char*     idstr = GET_TASKID(pTaskInfo);
 
+  //如果该节点是最后一个节点
   if (pPhyNode->pChildren == NULL || LIST_LENGTH(pPhyNode->pChildren) == 0) {
     SOperatorInfo* pOperator = NULL;
     if (QUERY_NODE_PHYSICAL_PLAN_TABLE_SCAN == type) {
       STableScanPhysiNode* pTableScanNode = (STableScanPhysiNode*)pPhyNode;
 
-      // NOTE: this is an patch to fix the physical plan
+      // NOTE: this is an patch to fix the physical plan，解决物理计划的小块代码。
       // TODO remove it later
       if (pTableScanNode->scan.node.pLimit != NULL) {
         pTableScanNode->groupSort = true;
       }
-
+      //扫描表信息
       int32_t code =
           createScanTableListInfo(&pTableScanNode->scan, pTableScanNode->pGroupTags, pTableScanNode->groupSort, pHandle,
                                   pTableListInfo, pTagCond, pTagIndexCond, pTaskInfo);
@@ -2094,13 +2099,13 @@ SOperatorInfo* createOperatorTree(SPhysiNode* pPhyNode, SExecTaskInfo* pTaskInfo
         qError("failed to createScanTableListInfo, code:%s, %s", tstrerror(code), idstr);
         return NULL;
       }
-
+      // 选取表格式信息
       code = extractTableSchemaInfo(pHandle, &pTableScanNode->scan, pTaskInfo);
       if (code) {
         pTaskInfo->code = terrno;
         return NULL;
       }
-
+      // 创建表扫描算子信息
       pOperator = createTableScanOperatorInfo(pTableScanNode, pHandle, pTaskInfo);
       if (NULL == pOperator) {
         pTaskInfo->code = terrno;
@@ -2248,6 +2253,7 @@ SOperatorInfo* createOperatorTree(SPhysiNode* pPhyNode, SExecTaskInfo* pTaskInfo
     }
   }
 
+  //匹配算子？？？
   SOperatorInfo* pOptr = NULL;
   if (QUERY_NODE_PHYSICAL_PLAN_PROJECT == type) {
     pOptr = createProjectOperatorInfo(ops[0], (SProjectPhysiNode*)pPhyNode, pTaskInfo);

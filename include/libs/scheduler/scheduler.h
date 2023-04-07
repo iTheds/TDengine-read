@@ -13,6 +13,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* 调度者
+*/
+
 #ifndef _TD_SCHEDULER_H_
 #define _TD_SCHEDULER_H_
 

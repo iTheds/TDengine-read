@@ -821,6 +821,7 @@ void taosKillSystem() {
 #endif
 }
 
+//随机生成一个 uuid ，形如 "b014700b-1a5c-4a23-b379-3a3aa0f3be3f", 每次访问都会生成一个不同的 id 
 int32_t taosGetSystemUUID(char *uid, int32_t uidlen) {
 #ifdef WINDOWS
   GUID guid;

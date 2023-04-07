@@ -297,14 +297,17 @@ typedef struct SDataBlockDescNode {
   uint8_t    precision;
 } SDataBlockDescNode;
 
+/*
+* 物理节点
+*/
 typedef struct SPhysiNode {
-  ENodeType           type;
-  SDataBlockDescNode* pOutputDataBlockDesc;
-  SNode*              pConditions;
-  SNodeList*          pChildren;
-  struct SPhysiNode*  pParent;
-  SNode*              pLimit;
-  SNode*              pSlimit;
+  ENodeType           type; // 形如 QUERY_NODE_PHYSICAL_PLAN_STREAM_SCAN， 标志节点类型
+  SDataBlockDescNode* pOutputDataBlockDesc;// 输出数据块描述
+  SNode*              pConditions;// 条件，node
+  SNodeList*          pChildren;// 节点列表，标志子节点 list
+  struct SPhysiNode*  pParent;// 父节点指针
+  SNode*              pLimit;// 限制？？
+  SNode*              pSlimit;//？？
 } SPhysiNode;
 
 typedef struct SScanPhysiNode {

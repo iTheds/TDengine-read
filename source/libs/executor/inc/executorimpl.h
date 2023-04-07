@@ -195,6 +195,9 @@ enum {
   OP_EXEC_RECV = 0x11,
 };
 
+/*
+* 算子集合方法
+*/
 typedef struct SOperatorFpSet {
   __optr_open_fn_t    _openFn;  // DO NOT invoke this function directly
   __optr_fn_t         getNextFn;

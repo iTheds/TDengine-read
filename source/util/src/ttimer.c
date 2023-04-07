@@ -560,10 +560,16 @@ static void taosTmrModuleInit(void) {
   tmrDebug("timer module is initialized, number of threads: %d", taosTmrThreads);
 }
 
+/*
+* 某种获取时间方法。
+* ？？？ 前三个参数都没有用到，只有最后一个 label 被使用，仅作为名称
+* 返回时间类 tmr_ctrl_t
+*/
 void* taosTmrInit(int32_t maxNumOfTmrs, int32_t resolution, int32_t longest, const char* label) {
   const char* ret = taosMonotonicInit();
   tmrDebug("ttimer monotonic clock source:%s", ret);
 
+  // 初始化时间模型。PTHREAD_ONCE_INIT。 只做一次的 pthread_onc， 表明该处只执行一次。
   taosThreadOnce(&tmrModuleInit, taosTmrModuleInit);
 
   taosThreadMutexLock(&tmrCtrlMutex);

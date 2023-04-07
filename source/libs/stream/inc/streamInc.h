@@ -28,6 +28,7 @@ typedef struct {
   void*  timer;
 } SStreamGlobalEnv;
 
+//全局静态变量，存放了一个 int8 和 timer 
 static SStreamGlobalEnv streamEnv;
 
 int32_t streamDispatch(SStreamTask* pTask);

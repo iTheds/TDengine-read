@@ -263,6 +263,7 @@ bool transAsyncPoolIsEmpty(SAsyncPool* pool) {
   }
   return true;
 }
+// 通过 libuv 将内容发送到???，通过 iocp 模型
 int transAsyncSend(SAsyncPool* pool, queue* q) {
   if (atomic_load_8(&pool->stop) == 1) {
     return -1;

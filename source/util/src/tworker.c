@@ -328,6 +328,9 @@ void tWWorkerCleanup(SWWorkerPool *pool) {
   uInfo("worker:%s is closed", pool->name);
 }
 
+/* 该类线程应该是一旦创建就会一直运行，因为 taosReadAllQitemsFromQset 中有 tsem_wait操作，
+* 如果没有任务，那么将会等待，如果有任务将会取出并且处理。
+*/
 static void *tWWorkerThreadFp(SWWorker *worker) {
   SWWorkerPool *pool = worker->pool;
   SQueueInfo    qinfo = {0};

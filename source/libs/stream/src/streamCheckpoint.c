@@ -119,6 +119,7 @@ int32_t tDecodeSStreamCheckpointRsp(SDecoder* pDecoder, SStreamCheckpointRsp* pR
   return 0;
 }
 
+/* 外部检查点*/
 static int32_t streamAlignCheckpoint(SStreamTask* pTask, int64_t checkpointId, int32_t childId) {
   if (pTask->checkpointingId == 0) {
     pTask->checkpointingId = checkpointId;

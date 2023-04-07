@@ -23,6 +23,9 @@ static SMsgCb defaultMsgCb;
 
 void tmsgSetDefault(const SMsgCb* msgcb) { defaultMsgCb = *msgcb; }
 
+/* 以 msgcb 中的方法将消息 pMsg 以 qtype 标志的规则进行发送到指定目标？？？
+* 该目标尚且不明确，，其 putToQueueFp 方法一般有 vmPutRpcMsgToQueue 等。以 iocp 模型进行发送。
+*/
 int32_t tmsgPutToQueue(const SMsgCb* msgcb, EQueueType qtype, SRpcMsg* pMsg) {
   int32_t code = (*msgcb->putToQueueFp)(msgcb->mgmt, qtype, pMsg);
   if (code != 0) {
@@ -45,6 +48,7 @@ int32_t tmsgSendReq(const SEpSet* epSet, SRpcMsg* pMsg) {
   return code;
 }
 
+// 发送 SRpcMsg
 void tmsgSendRsp(SRpcMsg* pMsg) {
 #if 1
   rpcSendResponse(pMsg);

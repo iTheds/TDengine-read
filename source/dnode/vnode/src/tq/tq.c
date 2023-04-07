@@ -1067,7 +1067,7 @@ int32_t tqProcessTaskDeployReq(STQ* pTq, int64_t version, char* msg, int32_t msg
   if (code < 0) return code;
 #endif
 
-  // 1.deserialize msg and build task
+  // 1.deserialize msg and build task，反序列化 msg ，并且创建任务
   SStreamTask* pTask = taosMemoryCalloc(1, sizeof(SStreamTask));
   if (pTask == NULL) {
     return -1;
@@ -1082,7 +1082,7 @@ int32_t tqProcessTaskDeployReq(STQ* pTq, int64_t version, char* msg, int32_t msg
   }
   tDecoderClear(&decoder);
 
-  // 2.save task
+  // 2.save task，保存接收到的 task
   code = streamMetaAddTask(pTq->pStreamMeta, version, pTask);
   if (code < 0) {
     return -1;
