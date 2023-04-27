@@ -78,18 +78,18 @@ int32_t vnodePreProcessWriteMsg(SVnode *pVnode, SRpcMsg *pMsg) {
     } break;
     case TDMT_VND_SUBMIT: {
       SSubmitMsgIter msgIter = {0};
-      SSubmitReq    *pSubmitReq = (SSubmitReq *)pMsg->pCont;
+      SSubmitReq    *pSubmitReq = (SSubmitReq *)pMsg->pCont;//定位消息内容
       SSubmitBlk    *pBlock = NULL;
       int64_t        ctime = taosGetTimestampMs();
       tb_uid_t       uid;
-
+      //根据消息内容以迭代器方式取出
       if (tInitSubmitMsgIter(pSubmitReq, &msgIter) < 0) {
         code = terrno;
         goto _err;
       }
 
       for (;;) {
-        tGetSubmitMsgNext(&msgIter, &pBlock);
+        tGetSubmitMsgNext(&msgIter, &pBlock);//将迭代器内容转换为可用数据，并且寻址下一个
         if (pBlock == NULL) break;
 
         if (msgIter.schemaLen > 0) {
@@ -109,7 +109,7 @@ int32_t vnodePreProcessWriteMsg(SVnode *pVnode, SRpcMsg *pMsg) {
             code = TSDB_CODE_INVALID_MSG;
             return code;
           }
-
+          //这里应该是比较特殊的一个地方，应该是写入东西。
           uid = metaGetTableEntryUidByName(pVnode->pMeta, name);
           if (uid == 0) {
             uid = tGenIdPI64();
@@ -204,8 +204,6 @@ int32_t vnodeProcessWriteMsg(SVnode *pVnode, SRpcMsg *pMsg, int64_t version, SRp
   pReq = POINTER_SHIFT(pMsg->pCont, sizeof(SMsgHead));
   len = pMsg->contLen - sizeof(SMsgHead);
   bool needCommit = false;
-
-
 
   switch (pMsg->msgType) {
     /* META */
@@ -494,7 +492,7 @@ end:
   taosArrayDestroy(tbUids);
   return ret;
 }
-
+/* 创建超级表*/
 static int32_t vnodeProcessCreateStbReq(SVnode *pVnode, int64_t version, void *pReq, int32_t len, SRpcMsg *pRsp) {
   SVCreateStbReq req = {0};
   SDecoder       coder;
@@ -918,7 +916,7 @@ static int32_t vnodeProcessSubmitReq(SVnode *pVnode, int64_t version, void *pReq
     SSubmitBlkRsp submitBlkRsp = {0};
     tbCreated = false;
 
-    // create table for auto create table mode
+    // create table for auto create table mode，？？？为动态表模式而创建表
     if (msgIter.schemaLen > 0) {
       tDecoderInit(&decoder, pBlock->data, msgIter.schemaLen);
       if (tDecodeSVCreateTbReq(&decoder, &createTbReq) < 0) {
@@ -976,7 +974,7 @@ static int32_t vnodeProcessSubmitReq(SVnode *pVnode, int64_t version, void *pReq
       tDecoderClear(&decoder);
       taosArrayDestroy(createTbReq.ctb.tagName);
     }
-
+    //插入数据
     if (tsdbInsertTableData(pVnode->pTsdb, version, &msgIter, pBlock, &submitBlkRsp) < 0) {
       submitBlkRsp.code = terrno;
     }

@@ -232,7 +232,7 @@ static int32_t getCacheSize(struct SDataSinkHandle* pHandle, uint64_t* size) {
   *size = atomic_load_64(&pDispatcher->cachedSize);
   return TSDB_CODE_SUCCESS;
 }
-
+/* 调度数据 ， 根据 SDataSinkNode 确定目标输入数据描述， output is pHandle */
 int32_t createDataDispatcher(SDataSinkManager* pManager, const SDataSinkNode* pDataSink, DataSinkHandle* pHandle) {
   SDataDispatchHandle* dispatcher = taosMemoryCalloc(1, sizeof(SDataDispatchHandle));
   if (NULL == dispatcher) {

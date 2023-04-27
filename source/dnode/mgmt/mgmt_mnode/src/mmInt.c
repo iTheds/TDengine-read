@@ -66,7 +66,7 @@ static void mmClose(SMnodeMgmt *pMgmt) {
 
   taosMemoryFree(pMgmt);
 }
-
+/* 管理生成， 初始化写前日志*/
 static int32_t mmOpen(SMgmtInputOpt *pInput, SMgmtOutputOpt *pOutput) {
   if (walInit() != 0) {
     dError("failed to init wal since %s", terrstr());

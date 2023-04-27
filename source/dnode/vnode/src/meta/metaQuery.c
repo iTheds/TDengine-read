@@ -197,7 +197,7 @@ tb_uid_t metaGetTableEntryUidByName(SMeta *pMeta, const char *name) {
   tb_uid_t uid = 0;
 
   metaRLock(pMeta);
-
+  //根据名称在 pMeta 中找到 指定的 pData
   if (tdbTbGet(pMeta->pNameIdx, name, strlen(name) + 1, &pData, &nData) == 0) {
     uid = *(tb_uid_t *)pData;
     tdbFree(pData);

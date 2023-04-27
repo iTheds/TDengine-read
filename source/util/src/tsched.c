@@ -125,6 +125,7 @@ void *taosInitSchedulerWithInfo(int32_t queueSize, int32_t numOfThreads, const c
   return pSched;
 }
 
+/* 使用线程： index-taskQ */
 void *taosProcessSchedQueue(void *scheduler) {
   SSchedMsg    msg;
   SSchedQueue *pSched = (SSchedQueue *)scheduler;

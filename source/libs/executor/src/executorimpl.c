@@ -125,6 +125,7 @@ int32_t optrDummyOpenFn(SOperatorInfo* pOperator) {
   return TSDB_CODE_SUCCESS;
 }
 
+/* 新建一个方法，并且将算子方法存入 SOperatorFpSet ，并且返回*/
 SOperatorFpSet createOperatorFpSet(__optr_open_fn_t openFn, __optr_fn_t nextFn, __optr_fn_t cleanup,
                                    __optr_close_fn_t closeFn, __optr_reqBuf_fn_t reqBufFn,
                                    __optr_explain_fn_t explain) {
@@ -2253,7 +2254,7 @@ SOperatorInfo* createOperatorTree(SPhysiNode* pPhyNode, SExecTaskInfo* pTaskInfo
     }
   }
 
-  //匹配算子？？？
+  //创建流信息
   SOperatorInfo* pOptr = NULL;
   if (QUERY_NODE_PHYSICAL_PLAN_PROJECT == type) {
     pOptr = createProjectOperatorInfo(ops[0], (SProjectPhysiNode*)pPhyNode, pTaskInfo);

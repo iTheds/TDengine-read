@@ -77,7 +77,7 @@ static void vmProcessQueryQueue(SQueueInfo *pInfo, SRpcMsg *pMsg) {
   rpcFreeCont(pMsg->pCont);
   taosFreeQitem(pMsg);
 }
-
+/* 使用节点：vnode-stream*/
 static void vmProcessStreamQueue(SQueueInfo *pInfo, SRpcMsg *pMsg) {
   SVnodeObj      *pVnode = pInfo->ahandle;
   const STraceId *trace = &pMsg->info.traceId;
@@ -117,7 +117,7 @@ static void vmProcessFetchQueue(SQueueInfo *pInfo, STaosQall *qall, int32_t numO
     taosFreeQitem(pMsg);
   }
 }
-
+/* 使用节点：vnode-sync */
 static void vmProcessSyncQueue(SQueueInfo *pInfo, STaosQall *qall, int32_t numOfMsgs) {
   SVnodeObj *pVnode = pInfo->ahandle;
   SRpcMsg   *pMsg = NULL;
@@ -140,7 +140,7 @@ static void vmSendResponse(SRpcMsg *pMsg) {
     rpcSendResponse(&rsp);
   }
 }
-
+/* query ???*/
 static int32_t vmPutMsgToQueue(SVnodeMgmt *pMgmt, SRpcMsg *pMsg, EQueueType qtype) {
   const STraceId *trace = &pMsg->info.traceId;
   if (pMsg->contLen < sizeof(SMsgHead)) {

@@ -218,7 +218,7 @@ STaosQall *taosAllocateQall() {
 }
 
 void taosFreeQall(STaosQall *qall) { taosMemoryFree(qall); }
-
+/* 清空 queue 和 qall 并且将所有内容存放到 qall，并且修改 queue 的关联上级*/
 int32_t taosReadAllQitems(STaosQueue *queue, STaosQall *qall) {
   int32_t numOfItems = 0;
   bool    empty;
@@ -424,42 +424,42 @@ int32_t taosReadAllQitemsFromQset(STaosQset *qset, STaosQall *qall, SQueueInfo *
   STaosQueue *queue;
   int32_t     code = 0;
 
-  tsem_wait(&qset->sem);
-  taosThreadMutexLock(&qset->mutex);
+  tsem_wait(&qset->sem);//判断/等待 qset 是否有数据
+  taosThreadMutexLock(&qset->mutex);//锁定 qset
 
-  for (int32_t i = 0; i < qset->numOfQueues; ++i) {
-    if (qset->current == NULL) qset->current = qset->head;
-    queue = qset->current;
-    if (queue) qset->current = queue->next;
+  for (int32_t i = 0; i < qset->numOfQueues; ++i) {//遍历整个 qset 的每一个 queue
+    if (qset->current == NULL) qset->current = qset->head;//调整当前的 queue 指针
+    queue = qset->current;//定位 queue
+    if (queue) qset->current = queue->next;//将当前指针后移动一个
     if (queue == NULL) break;
     if (queue->head == NULL) continue;
 
-    taosThreadMutexLock(&queue->mutex);
+    taosThreadMutexLock(&queue->mutex);//锁定 queue
 
-    if (queue->head) {
+    if (queue->head) {//如果当前的 queue 有值
       qall->current = queue->head;
       qall->start = queue->head;
       qall->numOfItems = queue->numOfItems;
       code = qall->numOfItems;
-      qinfo->ahandle = queue->ahandle;
+      qinfo->ahandle = queue->ahandle;//记录/复写信息
       qinfo->fp = queue->itemsFp;
       qinfo->queue = queue;
 
-      queue->head = NULL;
+      queue->head = NULL;//重置载体
       queue->tail = NULL;
       // queue->numOfItems = 0;
       queue->memOfItems = 0;
       uTrace("read %d items from queue:%p, items:0 mem:%" PRId64, code, queue, queue->memOfItems);
 
-      atomic_sub_fetch_32(&qset->numOfItems, qall->numOfItems);
+      atomic_sub_fetch_32(&qset->numOfItems, qall->numOfItems);//原子操作，前者减去后者存入前者
       for (int32_t j = 1; j < qall->numOfItems; ++j) {
-        tsem_wait(&qset->sem);
+        tsem_wait(&qset->sem);//释放 qall 接管的数据量
       }
     }
 
     taosThreadMutexUnlock(&queue->mutex);
 
-    if (code != 0) break;
+    if (code != 0) break;//只读一个系列即可
   }
 
   taosThreadMutexUnlock(&qset->mutex);

@@ -60,13 +60,13 @@ typedef struct SRpcHandleInfo {
 
   SRpcConnInfo conn;
 } SRpcHandleInfo;
-
+/* 消息体 */
 typedef struct SRpcMsg {
-  tmsg_t         msgType;
+  tmsg_t         msgType;//代表的方法
   void          *pCont;
   int32_t        contLen;
   int32_t        code;
-  SRpcHandleInfo info;
+  SRpcHandleInfo info;//信道信息
 } SRpcMsg;
 
 typedef void (*RpcCfp)(void *parent, SRpcMsg *, SEpSet *epset);

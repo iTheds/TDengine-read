@@ -627,7 +627,7 @@ int32_t qwProcessQuery(QW_FPARAMS_DEF, SQWMsg *qwMsg, char *sql) {
     QW_TASK_ELOG("task physical plan to subplan failed, code:%x - %s", code, tstrerror(code));
     QW_ERR_JRET(code);
   }
-
+  //创建任务，同时获取 sinkHandle(SDataDispatchHandle)，用于获取数据
   code = qCreateExecTask(qwMsg->node, mgmt->nodeId, tId, plan, &pTaskInfo, &sinkHandle, sql, OPTR_EXEC_MODEL_BATCH);
   sql = NULL;
   if (code) {
@@ -655,19 +655,21 @@ _return:
 
   input.code = code;
   input.msgType = qwMsg->msgType;
+  //阻塞等待事件，再进行数据获取？？？
   code = qwHandlePostPhaseEvents(QW_FPARAMS(), QW_PHASE_POST_QUERY, &input, NULL);
 
   if (QUERY_RSP_POLICY_QUICK == tsQueryRspPolicy && ctx != NULL && QW_EVENT_RECEIVED(ctx, QW_EVENT_FETCH)) {
     void       *rsp = NULL;
     int32_t     dataLen = 0;
     SOutputData sOutput = {0};
+    //通过 ctx->sinkHandle 获取数据， sOutput 为结果实体。rsp 为结果的描述信息？
     if (qwGetQueryResFromSink(QW_FPARAMS(), ctx, &dataLen, &rsp, &sOutput)) {
       return TSDB_CODE_SUCCESS;
     }
 
     if (rsp) {
       bool qComplete = (DS_BUF_EMPTY == sOutput.bufStatus && sOutput.queryEnd);
-
+      //内嵌结果实体到描述信息中
       qwBuildFetchRsp(rsp, &sOutput, dataLen, qComplete);
       if (qComplete) {
         atomic_store_8((int8_t *)&ctx->queryEnd, true);
@@ -675,7 +677,7 @@ _return:
 
       qwMsg->connInfo = ctx->dataConnInfo;
       QW_SET_EVENT_PROCESSED(ctx, QW_EVENT_FETCH);
-
+      //向目标需求连接 connInfo 发送数据信息
       qwBuildAndSendFetchRsp(ctx->msgType + 1, &qwMsg->connInfo, rsp, dataLen, code);
       rsp = NULL;
 

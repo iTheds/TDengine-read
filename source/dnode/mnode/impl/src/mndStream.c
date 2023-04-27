@@ -586,7 +586,7 @@ int32_t mndDropStreamTasks(SMnode *pMnode, STrans *pTrans, SStreamObj *pStream) 
   }
   return 0;
 }
-
+/* 创建流规则到表 - 源表？目的表？ */
 static int32_t mndProcessCreateStreamReq(SRpcMsg *pReq) {
   SMnode            *pMnode = pReq->info.node;
   int32_t            code = -1;
@@ -594,7 +594,7 @@ static int32_t mndProcessCreateStreamReq(SRpcMsg *pReq) {
   SDbObj            *pDb = NULL;
   SCMCreateStreamReq createStreamReq = {0};
   SStreamObj         streamObj = {0};
-
+  //反序列化为 SCMCreateStreamReq
   if (tDeserializeSCMCreateStreamReq(pReq->pCont, pReq->contLen, &createStreamReq) != 0) {
     terrno = TSDB_CODE_INVALID_MSG;
     goto _OVER;
@@ -606,7 +606,7 @@ static int32_t mndProcessCreateStreamReq(SRpcMsg *pReq) {
     mError("stream:%s, failed to create since %s", createStreamReq.name, terrstr());
     goto _OVER;
   }
-
+  //获取流任务信息，根据流名称
   pStream = mndAcquireStream(pMnode, createStreamReq.name);
   if (pStream != NULL) {
     if (createStreamReq.igExists) {
@@ -621,7 +621,7 @@ static int32_t mndProcessCreateStreamReq(SRpcMsg *pReq) {
     goto _OVER;
   }
 
-  // build stream obj from request
+  // build stream obj from request，建立流对象 SStreamObj
   if (mndBuildStreamObjFromCreateReq(pMnode, &streamObj, &createStreamReq) < 0) {
     mError("stream:%s, failed to create since %s", createStreamReq.name, terrstr());
     goto _OVER;

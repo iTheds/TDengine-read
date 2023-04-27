@@ -842,6 +842,7 @@ static void destroyTableScanOperatorInfo(void* param) {
   taosMemoryFreeClear(param);
 }
 
+/* 创建表扫描算子信息*/
 SOperatorInfo* createTableScanOperatorInfo(STableScanPhysiNode* pTableScanNode, SReadHandle* readHandle,
                                            SExecTaskInfo* pTaskInfo) {
   STableScanInfo* pInfo = taosMemoryCalloc(1, sizeof(STableScanInfo));
@@ -850,6 +851,7 @@ SOperatorInfo* createTableScanOperatorInfo(STableScanPhysiNode* pTableScanNode, 
     goto _error;
   }
 
+  //定位指定内容 STableScanPhysiNode scan
   SScanPhysiNode*     pScanNode = &pTableScanNode->scan;
   SDataBlockDescNode* pDescNode = pScanNode->node.pOutputDataBlockDesc;
 
@@ -860,6 +862,7 @@ SOperatorInfo* createTableScanOperatorInfo(STableScanPhysiNode* pTableScanNode, 
     goto _error;
   }
 
+  //初始化限制条件
   initLimitInfo(pScanNode->node.pLimit, pScanNode->node.pSlimit, &pInfo->base.limitInfo);
   code = initQueryTableDataCond(&pInfo->base.cond, pTableScanNode);
   if (code != TSDB_CODE_SUCCESS) {
@@ -869,6 +872,7 @@ SOperatorInfo* createTableScanOperatorInfo(STableScanPhysiNode* pTableScanNode, 
   if (pScanNode->pScanPseudoCols != NULL) {
     SExprSupp* pSup = &pInfo->base.pseudoSup;
     pSup->pExprInfo = createExprInfo(pScanNode->pScanPseudoCols, NULL, &pSup->numOfExprs);
+    //创建 sql 语句执行的方法
     pSup->pCtx = createSqlFunctionCtx(pSup->pExprInfo, pSup->numOfExprs, &pSup->rowEntryInfoOffset);
   }
 
@@ -885,7 +889,7 @@ SOperatorInfo* createTableScanOperatorInfo(STableScanPhysiNode* pTableScanNode, 
   initResultSizeInfo(&pOperator->resultInfo, 4096);
   pInfo->pResBlock = createDataBlockFromDescNode(pDescNode);
   blockDataEnsureCapacity(pInfo->pResBlock, pOperator->resultInfo.capacity);
-
+  //初始化筛选器
   code = filterInitFromNode((SNode*)pTableScanNode->scan.node.pConditions, &pOperator->exprSupp.pFilterInfo, 0);
   if (code != TSDB_CODE_SUCCESS) {
     goto _error;
@@ -906,7 +910,7 @@ SOperatorInfo* createTableScanOperatorInfo(STableScanPhysiNode* pTableScanNode, 
   }
 
   taosLRUCacheSetStrictCapacity(pInfo->base.metaCache.pTableMetaEntryCache, false);
-  //创建算子方法集合
+  //创建算子方法集合，该处应该是产生算子的处理方法而非算子本身所表征的方法？？
   pOperator->fpSet = createOperatorFpSet(optrDummyOpenFn, doTableScan, NULL, destroyTableScanOperatorInfo,
                                          optrDefaultBufFn, getTableScannerExecInfo);
 
@@ -2880,7 +2884,7 @@ SOperatorInfo* createTableMergeScanOperatorInfo(STableScanPhysiNode* pTableScanN
   if (pTableScanNode->scan.pScanPseudoCols != NULL) {
     SExprSupp* pSup = &pInfo->base.pseudoSup;
     pSup->pExprInfo = createExprInfo(pTableScanNode->scan.pScanPseudoCols, NULL, &pSup->numOfExprs);
-    pSup->pCtx = createSqlFunctionCtx(pSup->pExprInfo, pSup->numOfExprs, &pSup->rowEntryInfoOffset);
+    pSup->pCtx = createSqlFunctionCtx(pSup->pExprInfo, pSup->numOfExprs, &pSup->rowEntryInfoOffset);//mention
   }
 
   pInfo->scanInfo = (SScanInfo){.numOfAsc = pTableScanNode->scanSeq[0], .numOfDesc = pTableScanNode->scanSeq[1]};

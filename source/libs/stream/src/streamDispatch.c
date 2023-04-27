@@ -96,7 +96,7 @@ int32_t tDecodeStreamRetrieveReq(SDecoder* pDecoder, SStreamRetrieveReq* pReq) {
 }
 
 void tDeleteStreamRetrieveReq(SStreamRetrieveReq* pReq) { taosMemoryFree(pReq->pRetrieve); }
-
+/* 将流广播到子节点 */
 int32_t streamBroadcastToChildren(SStreamTask* pTask, const SSDataBlock* pBlock) {
   int32_t            code = -1;
   SRetrieveTableRsp* pRetrieve = NULL;

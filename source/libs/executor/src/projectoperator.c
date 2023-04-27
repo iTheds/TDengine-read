@@ -69,7 +69,7 @@ static void destroyIndefinitOperatorInfo(void* param) {
 
   taosMemoryFreeClear(param);
 }
-
+/* 如果是 select 流查询 会走此处*/
 SOperatorInfo* createProjectOperatorInfo(SOperatorInfo* downstream, SProjectPhysiNode* pProjPhyNode,
                                          SExecTaskInfo* pTaskInfo) {
   int32_t               code = TSDB_CODE_SUCCESS;
@@ -111,6 +111,7 @@ SOperatorInfo* createProjectOperatorInfo(SOperatorInfo* downstream, SProjectPhys
   }
 
   initResultSizeInfo(&pOperator->resultInfo, numOfRows);
+  //初始化聚合查询(agg)
   code = initAggSup(&pOperator->exprSupp, &pInfo->aggSup, pExprInfo, numOfCols, keyBufSize, pTaskInfo->id.str,
                     pTaskInfo->streamInfo.pState);
   if (code != TSDB_CODE_SUCCESS) {

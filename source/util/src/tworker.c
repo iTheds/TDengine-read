@@ -92,7 +92,7 @@ static void *tQWorkerThreadFp(SQWorker *worker) {
     // 执行
     if (qinfo.fp != NULL) {
       qinfo.workerId = worker->id;
-      qinfo.threadNum = pool->num;//感觉是可有可无的操作
+      qinfo.threadNum = pool->num;
       (*((FItem)qinfo.fp))(&qinfo, msg);
     }
 
@@ -101,7 +101,7 @@ static void *tQWorkerThreadFp(SQWorker *worker) {
 
   return NULL;
 }
-//分配队列？？？
+//分配队列 ？？？
 // @param 
 // ahandle: 
 // fp : 一个？？方法
@@ -215,7 +215,7 @@ static void *tAutoQWorkerThreadFp(SQWorker *worker) {
       (*((FItem)qinfo.fp))(&qinfo, msg);
     }
 
-    taosUpdateItemSize(qinfo.queue, 1);
+    taosUpdateItemSize(qinfo.queue, 1);//减去一个值
   }
 
   return NULL;
@@ -344,7 +344,7 @@ static void *tWWorkerThreadFp(SWWorker *worker) {
   uInfo("worker:%s:%d is running, thread:%08" PRId64, pool->name, worker->id, worker->pid);
 
   while (1) {
-    // 从 worker 维护的 qset 中取出所有的任务到 qall 
+    // 从 worker 维护的 qset 中取出一个任务队列到 qall 
     numOfMsgs = taosReadAllQitemsFromQset(worker->qset, worker->qall, &qinfo);
     if (numOfMsgs == 0) {
       uInfo("worker:%s:%d qset:%p, got no message and exiting, thread:%08" PRId64, pool->name, worker->id, worker->qset,
@@ -355,7 +355,7 @@ static void *tWWorkerThreadFp(SWWorker *worker) {
     if (qinfo.fp != NULL) {
       qinfo.workerId = worker->id;
       qinfo.threadNum = pool->num;
-      (*((FItems)qinfo.fp))(&qinfo, worker->qall, numOfMsgs);
+      (*((FItems)qinfo.fp))(&qinfo, worker->qall, numOfMsgs);//vmProcessSyncQueue
     }
     taosUpdateItemSize(qinfo.queue, numOfMsgs);
   }

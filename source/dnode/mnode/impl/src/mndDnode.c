@@ -352,7 +352,7 @@ static int32_t mndCheckClusterCfgPara(SMnode *pMnode, SDnodeObj *pDnode, const S
 
   return 0;
 }
-
+/*使用节点:mnode-read*/
 static int32_t mndProcessStatusReq(SRpcMsg *pReq) {
   SMnode    *pMnode = pReq->info.node;
   SStatusReq statusReq = {0};

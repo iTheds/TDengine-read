@@ -72,7 +72,7 @@ static FORCE_INLINE void mnodeFreeSBatchRspMsg(void* p) {
   SBatchRspMsg* pRsp = (SBatchRspMsg*)p;
   rpcFreeCont(pRsp->msg);
 }
-
+/* 使用节点：mnode-read*/
 int32_t mndProcessBatchMetaMsg(SRpcMsg *pMsg) {
   int32_t    code = 0;
   int32_t    rspSize = 0;

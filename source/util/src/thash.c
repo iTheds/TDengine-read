@@ -791,7 +791,7 @@ static void *taosHashReleaseNode(SHashObj *pHashObj, void *p, int *slot) {
 
       pe->num--;
       atomic_sub_fetch_64(&pHashObj->size, 1);
-      FREE_HASH_NODE(pHashObj->freeFp, pOld);
+      FREE_HASH_NODE(pHashObj->freeFp, pOld);//调用 pHashObj 中的释放函数
     }
   } else {
     //    uError("pNode:%p data:%p is not there!!!", pNode, p);

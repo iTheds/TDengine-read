@@ -26,11 +26,12 @@ int32_t dmOpenNode(SMgmtWrapper *pWrapper) {
   }
 
   SMgmtOutputOpt output = {0};
+  //负载信息通道方法
   SMgmtInputOpt  input = dmBuildMgmtInputOpt(pWrapper);
 
   dInfo("node:%s, start to open", pWrapper->name);
   tmsgSetDefault(&input.msgCb);
-  if ((*pWrapper->func.openFp)(&input, &output) != 0) {
+  if ((*pWrapper->func.openFp)(&input, &output) != 0) {//执行
     dError("node:%s, failed to open since %s", pWrapper->name, terrstr());
     return -1;
   }
@@ -48,7 +49,7 @@ int32_t dmOpenNode(SMgmtWrapper *pWrapper) {
 int32_t dmStartNode(SMgmtWrapper *pWrapper) {
   if (pWrapper->func.startFp != NULL) {
     dDebug("node:%s, start to start", pWrapper->name);
-    if ((*pWrapper->func.startFp)(pWrapper->pMgmt) != 0) {
+    if ((*pWrapper->func.startFp)(pWrapper->pMgmt) != 0) {//执行
       dError("node:%s, failed to start since %s", pWrapper->name, terrstr());
       return -1;
     }
@@ -131,6 +132,7 @@ static void dmCloseNodes(SDnode *pDnode) {
 
 int32_t dmRunDnode(SDnode *pDnode) {
   int32_t count = 0;
+  //初始化 dnode 方法
   if (dmOpenNodes(pDnode) != 0) {
     dError("failed to open nodes since %s", terrstr());
     return -1;

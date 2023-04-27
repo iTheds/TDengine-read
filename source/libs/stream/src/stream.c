@@ -103,7 +103,7 @@ int32_t streamSetupTrigger(SStreamTask* pTask) {
   return 0;
 }
 
-/* 以 pTask 生成一个计划(schedule)，存入 SRpcMsg ，根据 pTask->pMsgCb 进行发送到指定目标 。*/
+/* 以 pTask 生成一个计划(schedule)，存入 pTask->SRpcMsg ，根据 pTask->pMsgCb 进行发送到指定目标 。*/
 int32_t streamSchedExec(SStreamTask* pTask) {
   int8_t schedStatus =
       atomic_val_compare_exchange_8(&pTask->schedStatus, TASK_SCHED_STATUS__INACTIVE, TASK_SCHED_STATUS__WAITING);

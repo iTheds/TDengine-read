@@ -166,6 +166,7 @@ int32_t syncReconfig(int64_t rid, SSyncCfg* pNewCfg) {
   return 0;
 }
 
+/* 使用节点： mnode-sync */
 int32_t syncProcessMsg(int64_t rid, SRpcMsg* pMsg) {
   int32_t code = -1;
   if (!syncIsInit()) return code;
@@ -2559,6 +2560,7 @@ int32_t syncNodeOnLocalCmd(SSyncNode* ths, const SRpcMsg* pRpcMsg) {
 //                    leaderVars, commitIndex>>
 //
 
+/*同步系统*/
 int32_t syncNodeOnClientRequest(SSyncNode* ths, SRpcMsg* pMsg, SyncIndex* pRetIndex) {
   sNTrace(ths, "on client request");
 

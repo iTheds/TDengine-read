@@ -459,7 +459,7 @@ int32_t qCreateExecTask(SReadHandle* readHandle, int32_t vgId, uint64_t taskId, 
   }
 
   SDataSinkMgtCfg cfg = {.maxDataBlockNum = 500, .maxDataBlockNumPerQuery = 50};
-  code = dsDataSinkMgtInit(&cfg);
+  code = dsDataSinkMgtInit(&cfg);//mention,可能是链接到下一个要流向的任务目的？
   if (code != TSDB_CODE_SUCCESS) {
     qError("failed to dsDataSinkMgtInit, code:%s, %s", tstrerror(code), (*pTask)->id.str);
     goto _error;
@@ -538,6 +538,7 @@ int32_t qExecTaskOpt(qTaskInfo_t tinfo, SArray* pResList, uint64_t* useconds, bo
   int64_t st = taosGetTimestampUs();
 
   int32_t blockIndex = 0;
+  //主要执行过程，record for used: doProjectOperation ， loadRemoteData
   while ((pRes = pTaskInfo->pRoot->fpSet.getNextFn(pTaskInfo->pRoot)) != NULL) {
     SSDataBlock* p = NULL;
     if (blockIndex >= taosArrayGetSize(pTaskInfo->pResultBlockList)) {
@@ -589,7 +590,7 @@ void qCleanExecTaskBlockBuf(qTaskInfo_t tinfo) {
 
   taosArrayClear(pTaskInfo->pResultBlockList);
 }
-
+/* 执行任务 */
 int32_t qExecTask(qTaskInfo_t tinfo, SSDataBlock** pRes, uint64_t* useconds) {
   SExecTaskInfo* pTaskInfo = (SExecTaskInfo*)tinfo;
   int64_t        threadId = taosGetSelfPthreadId();
@@ -626,7 +627,7 @@ int32_t qExecTask(qTaskInfo_t tinfo, SSDataBlock** pRes, uint64_t* useconds) {
 
   int64_t st = taosGetTimestampUs();
 
-  *pRes = pTaskInfo->pRoot->fpSet.getNextFn(pTaskInfo->pRoot);
+  *pRes = pTaskInfo->pRoot->fpSet.getNextFn(pTaskInfo->pRoot);//执行？？？//record for used:doStreamFinalIntervalAgg
   uint64_t el = (taosGetTimestampUs() - st);
 
   pTaskInfo->cost.elapsedTime += el;

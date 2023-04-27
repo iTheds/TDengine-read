@@ -1067,7 +1067,7 @@ int32_t tqProcessTaskDeployReq(STQ* pTq, int64_t version, char* msg, int32_t msg
   if (code < 0) return code;
 #endif
 
-  // 1.deserialize msg and build task，反序列化 msg ，并且创建任务
+  // 1.deserialize msg and build task，反序列化 msg 为任务
   SStreamTask* pTask = taosMemoryCalloc(1, sizeof(SStreamTask));
   if (pTask == NULL) {
     return -1;
@@ -1354,12 +1354,12 @@ int32_t tqProcessDelReq(STQ* pTq, void* pReq, int32_t len, int64_t ver) {
 
   return 0;
 }
-
+/*主要的流提交过程*/
 int32_t tqProcessSubmitReq(STQ* pTq, SSubmitReq* pReq, int64_t ver) {
   void*              pIter = NULL;
   bool               failed = false;
   SStreamDataSubmit* pSubmit = NULL;
-
+  //新建 SStreamDataSubmit 并且将 pReq 嵌入到其中返回
   pSubmit = streamDataSubmitNew(pReq);
   if (pSubmit == NULL) {
     terrno = TSDB_CODE_OUT_OF_MEMORY;
@@ -1368,7 +1368,7 @@ int32_t tqProcessSubmitReq(STQ* pTq, SSubmitReq* pReq, int64_t ver) {
   }
 
   while (1) {
-    pIter = taosHashIterate(pTq->pStreamMeta->pTasks, pIter);
+    pIter = taosHashIterate(pTq->pStreamMeta->pTasks, pIter);//取出 STQ 任务以迭代器方式放入 pItem
     if (pIter == NULL) break;
     SStreamTask* pTask = *(SStreamTask**)pIter;
     if (pTask->taskLevel != TASK_LEVEL__SOURCE) continue;
@@ -1380,11 +1380,12 @@ int32_t tqProcessSubmitReq(STQ* pTq, SSubmitReq* pReq, int64_t ver) {
     tqDebug("data submit enqueue stream task: %d, ver: %" PRId64, pTask->taskId, ver);
 
     if (!failed) {
+      // 将 pSubmit 放入到 pTask 队列中
       if (streamTaskInput(pTask, (SStreamQueueItem*)pSubmit) < 0) {
         tqError("stream task input failed, task id %d", pTask->taskId);
         continue;
       }
-
+      //以 pTask 生成一个计划(schedule)，存入 pTask->SRpcMsg ，根据 pTask->pMsgCb 进行发送到指定目标 ,即放入目标 queue
       if (streamSchedExec(pTask) < 0) {
         tqError("stream task launch failed, task id %d", pTask->taskId);
         continue;
@@ -1403,9 +1404,9 @@ int32_t tqProcessSubmitReq(STQ* pTq, SSubmitReq* pReq, int64_t ver) {
 }
 
 int32_t tqProcessTaskRunReq(STQ* pTq, SRpcMsg* pMsg) {
-  SStreamTaskRunReq* pReq = pMsg->pCont;
+  SStreamTaskRunReq* pReq = pMsg->pCont;//取出消息体中的内容
   int32_t            taskId = pReq->taskId;
-  SStreamTask*       pTask = streamMetaAcquireTask(pTq->pStreamMeta, taskId);
+  SStreamTask*       pTask = streamMetaAcquireTask(pTq->pStreamMeta, taskId);//通过消息体中的任务 id 定位流元数据对应的任务
   if (pTask) {
     streamProcessRunReq(pTask);
     streamMetaReleaseTask(pTq->pStreamMeta, pTask);

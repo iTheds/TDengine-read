@@ -96,7 +96,7 @@ typedef struct STaosQueue {
 typedef struct STaosQset {
   STaosQueue   *head;
   STaosQueue   *current;
-  TdThreadMutex mutex;  //该锁是为了？？？
+  TdThreadMutex mutex;  //保护自身的锁
   tsem_t        sem;    //计数表示写入的次数，写入后将内容放入？？
   int32_t       numOfQueues;
   int32_t       numOfItems;

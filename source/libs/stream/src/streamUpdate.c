@@ -79,7 +79,7 @@ static int64_t adjustInterval(int64_t interval, int32_t precision) {
   }
   return val;
 }
-
+/* 调整窗口*/
 static int64_t adjustWatermark(int64_t adjInterval, int64_t originInt, int64_t watermark) {
   if (watermark <= adjInterval) {
     watermark = TMAX(originInt / adjInterval, 1) * adjInterval;
@@ -94,7 +94,7 @@ static int64_t adjustWatermark(int64_t adjInterval, int64_t originInt, int64_t w
 SUpdateInfo *updateInfoInitP(SInterval *pInterval, int64_t watermark) {
   return updateInfoInit(pInterval->interval, pInterval->precision, watermark);
 }
-
+/*更新配置信息*/
 SUpdateInfo *updateInfoInit(int64_t interval, int32_t precision, int64_t watermark) {
   SUpdateInfo *pInfo = taosMemoryCalloc(1, sizeof(SUpdateInfo));
   if (pInfo == NULL) {
@@ -161,7 +161,7 @@ static SScalableBf *getSBf(SUpdateInfo *pInfo, TSKEY ts) {
   }
   return res;
 }
-
+//判断表是否更新插入
 bool updateInfoIsTableInserted(SUpdateInfo *pInfo, int64_t tbUid) {
   void *pVal = taosHashGet(pInfo->pMap, &tbUid, sizeof(int64_t));
   if (pVal || taosHashGetSize(pInfo->pMap) >= DEFAULT_MAP_SIZE) return true;
@@ -205,7 +205,7 @@ bool updateInfoIsUpdated(SUpdateInfo *pInfo, uint64_t tableId, TSKEY ts) {
   TSKEY   *pMapMaxTs = taosHashGet(pInfo->pMap, &tableId, sizeof(uint64_t));
   uint64_t index = ((uint64_t)tableId) % pInfo->numBuckets;
   TSKEY    maxTs = *(TSKEY *)taosArrayGet(pInfo->pTsBuckets, index);
-  if (ts < maxTs - pInfo->watermark) {
+  if (ts < maxTs - pInfo->watermark) {//窗口关闭
     // this window has been closed.
     if (pInfo->pCloseWinSBF) {
       res = tScalableBfPut(pInfo->pCloseWinSBF, &updateKey, sizeof(SUpdateKey));

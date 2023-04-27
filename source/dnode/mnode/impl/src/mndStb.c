@@ -940,7 +940,7 @@ static int32_t mndBuildStbFromAlter(SStbObj *pStb, SStbObj *pDst, SMCreateStbReq
   pDst->colVer = createReq->colVer;
   return TSDB_CODE_SUCCESS;
 }
-
+/* 创建超级表 ？ */
 static int32_t mndProcessCreateStbReq(SRpcMsg *pReq) {
   SMnode        *pMnode = pReq->info.node;
   int32_t        code = -1;

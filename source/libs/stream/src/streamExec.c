@@ -54,7 +54,7 @@ static int32_t streamTaskExecImpl(SStreamTask* pTask, const void* data, SArray* 
 
     SSDataBlock* output = NULL;
     uint64_t     ts = 0;
-    if ((code = qExecTask(exec, &output, &ts)) < 0) {
+    if ((code = qExecTask(exec, &output, &ts)) < 0) {//主要执行过程
       /*ASSERT(false);*/
       qError("unexpected stream execution, stream %" PRId64 " task: %d,  since %s", pTask->streamId, pTask->taskId,
              terrstr());
@@ -76,7 +76,7 @@ static int32_t streamTaskExecImpl(SStreamTask* pTask, const void* data, SArray* 
       break;
     }
 
-    if (output->info.type == STREAM_RETRIEVE) {
+    if (output->info.type == STREAM_RETRIEVE) {//将执行过程广播下发
       if (streamBroadcastToChildren(pTask, output) < 0) {
         // TODO
       }
@@ -201,11 +201,13 @@ int32_t streamExecForAll(SStreamTask* pTask) {
     int32_t batchCnt = 1;
     void*   input = NULL;
     while (1) {
+      //寻找流队列中项目
       SStreamQueueItem* qItem = streamQueueNextItem(pTask->inputQueue);
       if (qItem == NULL) {
         qDebug("stream task exec over, queue empty, task: %d", pTask->taskId);
         break;
       }
+      //
       if (input == NULL) {
         input = qItem;
         streamQueueProcessSuccess(pTask->inputQueue);
@@ -243,7 +245,7 @@ int32_t streamExecForAll(SStreamTask* pTask) {
     SArray* pRes = taosArrayInit(0, sizeof(SSDataBlock));
 
     qDebug("stream task %d exec begin, msg batch: %d", pTask->taskId, batchCnt);
-    streamTaskExecImpl(pTask, input, pRes);
+    streamTaskExecImpl(pTask, input, pRes);//主要执行
     qDebug("stream task %d exec end", pTask->taskId);
 
     if (taosArrayGetSize(pRes) != 0) {
@@ -291,7 +293,7 @@ int32_t streamTryExec(SStreamTask* pTask) {
     }
     atomic_store_8(&pTask->schedStatus, TASK_SCHED_STATUS__INACTIVE);
 
-    if (!taosQueueEmpty(pTask->inputQueue->queue)) {
+    if (!taosQueueEmpty(pTask->inputQueue->queue)) {//执行完成后剩余下发
       streamSchedExec(pTask);
     }
   }

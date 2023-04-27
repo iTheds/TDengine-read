@@ -1484,6 +1484,7 @@ static int32_t setSelectValueColumnInfo(SqlFunctionCtx* pCtx, int32_t numOfOutpu
   return TSDB_CODE_SUCCESS;
 }
 
+/* 创建 sql 语句执行的方法*/
 SqlFunctionCtx* createSqlFunctionCtx(SExprInfo* pExprInfo, int32_t numOfOutput, int32_t** rowEntryInfoOffset) {
   SqlFunctionCtx* pFuncCtx = (SqlFunctionCtx*)taosMemoryCalloc(numOfOutput, sizeof(SqlFunctionCtx));
   if (pFuncCtx == NULL) {
@@ -1512,7 +1513,7 @@ SqlFunctionCtx* createSqlFunctionCtx(SExprInfo* pExprInfo, int32_t numOfOutput, 
       if (fmIsAggFunc(pCtx->functionId) || fmIsIndefiniteRowsFunc(pCtx->functionId)) {
         bool isUdaf = fmIsUserDefinedFunc(pCtx->functionId);
         if (!isUdaf) {
-          fmGetFuncExecFuncs(pCtx->functionId, &pCtx->fpSet);
+          fmGetFuncExecFuncs(pCtx->functionId, &pCtx->fpSet);//方法匹配
         } else {
           char* udfName = pExpr->pExpr->_function.pFunctNode->functionName;
           tstrncpy(pCtx->udfName, udfName, TSDB_FUNC_NAME_LEN);
@@ -1603,6 +1604,7 @@ SColumn extractColumnFromColumnNode(SColumnNode* pColNode) {
   return c;
 }
 
+/* 初始化查询表数据条件 */
 int32_t initQueryTableDataCond(SQueryTableDataCond* pCond, const STableScanPhysiNode* pTableScanNode) {
   pCond->order = pTableScanNode->scanSeq[0] > 0 ? TSDB_ORDER_ASC : TSDB_ORDER_DESC;
   pCond->numOfCols = LIST_LENGTH(pTableScanNode->scan.pScanCols);

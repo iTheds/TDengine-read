@@ -693,6 +693,7 @@ typedef struct {
   int32_t tsOrder;        // ts comp block order
 } STsBufInfo;
 
+/*间隔*/
 typedef struct {
   int32_t tz;  // query client timezone
   char    intervalUnit;
