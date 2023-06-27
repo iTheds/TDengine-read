@@ -167,7 +167,7 @@ typedef struct SSdbRow {
 } SSdbRow;
 
 typedef struct SSdb {
-  SMnode        *pMnode;
+  SMnode        *pMnode;// 上级指针
   SWal          *pWal;
   int64_t        sync;
   char          *currDir;

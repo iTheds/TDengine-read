@@ -708,7 +708,7 @@ int32_t mndProcessRpcMsg(SRpcMsg *pMsg) {
 
   mGTrace("msg:%p, start to process in mnode, app:%p type:%s", pMsg, pMsg->info.ahandle, TMSG_INFO(pMsg->msgType));
 
-  int32_t code = (*fp)(pMsg);//执行关键方法处
+  int32_t code = (*fp)(pMsg);//执行关键方法处，<mndProcessGrantHB>
   mndReleaseRpc(pMnode);
 
   if (code == TSDB_CODE_ACTION_IN_PROGRESS) {

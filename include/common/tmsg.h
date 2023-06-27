@@ -2077,7 +2077,7 @@ typedef struct SVCreateTbReq {
       uint8_t  tagNum;
       tb_uid_t suid;
       SArray*  tagName;
-      uint8_t* pTag;
+      uint8_t* pTag; // mention
     } ctb;
     struct {
       SSchemaWrapper schemaRow;

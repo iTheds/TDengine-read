@@ -93,7 +93,7 @@ static void *tQWorkerThreadFp(SQWorker *worker) {
     if (qinfo.fp != NULL) {
       qinfo.workerId = worker->id;
       qinfo.threadNum = pool->num;
-      (*((FItem)qinfo.fp))(&qinfo, msg);
+      (*((FItem)qinfo.fp))(&qinfo, msg);// mmProcessRpcMsg
     }
 
     taosUpdateItemSize(qinfo.queue, 1);
@@ -355,7 +355,7 @@ static void *tWWorkerThreadFp(SWWorker *worker) {
     if (qinfo.fp != NULL) {
       qinfo.workerId = worker->id;
       qinfo.threadNum = pool->num;
-      (*((FItems)qinfo.fp))(&qinfo, worker->qall, numOfMsgs);//vmProcessSyncQueue
+      (*((FItems)qinfo.fp))(&qinfo, worker->qall, numOfMsgs);//vmProcessSyncQueue， 0x555555670efc <vnodeApplyWriteMsg>
     }
     taosUpdateItemSize(qinfo.queue, numOfMsgs);
   }

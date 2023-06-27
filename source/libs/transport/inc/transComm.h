@@ -113,7 +113,7 @@ typedef SRpcConnInfo STransHandleInfo;
 typedef struct SExHandle {
   void*   handle;
   int64_t refId;
-  void*   pThrd;
+  void*   pThrd; // 线程
 } SExHandle;
 
 /*convet from fqdn to ip */
@@ -229,7 +229,7 @@ typedef struct {
 typedef struct {
   int         index;
   int         nAsync;
-  uv_async_t* asyncs;
+  uv_async_t* asyncs;// 这是一个链表
   int8_t      stop;
 } SAsyncPool;
 

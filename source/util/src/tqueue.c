@@ -376,6 +376,7 @@ void taosRemoveFromQset(STaosQset *qset, STaosQueue *queue) {
 }
 
 // 返回 1 为成功， 0 为失败
+// 从 qset 中随便读取一个值，一般是头队列
 int32_t taosReadQitemFromQset(STaosQset *qset, void **ppItem, SQueueInfo *qinfo) {
   STaosQnode *pNode = NULL;
   int32_t     code = 0;

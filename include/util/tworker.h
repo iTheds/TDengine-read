@@ -67,7 +67,7 @@ typedef struct SWWorker {
 /*采用的是 SWWorker 作为 worker*/
 typedef struct SWWorkerPool {
   int32_t       max;  // max number of workers
-  int32_t       num;
+  int32_t       num;    // 当前的 worker 已经可以直接使用的数量
   int32_t       nextId;  // from 0 to max-1, cyclic
   const char   *name;
   SWWorker     *workers;

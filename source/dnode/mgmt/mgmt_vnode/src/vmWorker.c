@@ -24,7 +24,7 @@ static inline void vmSendRsp(SRpcMsg *pMsg, int32_t code) {
       .contLen = pMsg->info.rspLen,
       .info = pMsg->info,
   };
-  tmsgSendRsp(&rsp);
+  tmsgSendRsp(&rsp);//属于 rpc 回调
 }
 
 static void vmProcessMgmtQueue(SQueueInfo *pInfo, SRpcMsg *pMsg) {
@@ -53,7 +53,7 @@ static void vmProcessMgmtQueue(SQueueInfo *pInfo, SRpcMsg *pMsg) {
       if (terrno != 0) code = terrno;
       dGError("msg:%p, failed to process since %s", pMsg, terrstr(code));
     }
-    vmSendRsp(pMsg, code);
+    vmSendRsp(pMsg, code);//发给???
   }
 
   dGTrace("msg:%p, is freed, code:0x%x", pMsg, code);
@@ -140,7 +140,7 @@ static void vmSendResponse(SRpcMsg *pMsg) {
     rpcSendResponse(&rsp);
   }
 }
-/* query ???*/
+/* query ???, 通过 msg 的信息，在 pmgmt 结构的 hash 成员中寻找 SVnodeObj, 再根据 msg 调用对应方法*/
 static int32_t vmPutMsgToQueue(SVnodeMgmt *pMgmt, SRpcMsg *pMsg, EQueueType qtype) {
   const STraceId *trace = &pMsg->info.traceId;
   if (pMsg->contLen < sizeof(SMsgHead)) {
@@ -262,7 +262,7 @@ int32_t vmPutRpcMsgToQueue(SVnodeMgmt *pMgmt, EQueueType qtype, SRpcMsg *pRpc) {
   SMsgHead *pHead = pRpc->pCont;
   dTrace("vgId:%d, msg:%p is created, type:%s len:%d", pHead->vgId, pMsg, TMSG_INFO(pRpc->msgType), pRpc->contLen);
 
-  pHead->contLen = htonl(pHead->contLen);
+  pHead->contLen = htonl(pHead->contLen);// 大端解码
   pHead->vgId = htonl(pHead->vgId);
   memcpy(pMsg, pRpc, sizeof(SRpcMsg));
   pRpc->pCont = NULL;
