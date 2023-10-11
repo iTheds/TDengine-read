@@ -316,7 +316,8 @@ int mainWindows(int argc, char **argv) {
 
   osSetProcPath(argc, (char **)argv);
   taosCleanupArgs();
-
+  
+  // 关键初始化函数
   if (dmInit() != 0) {
     dError("failed to init dnode since %s", terrstr());
 
@@ -328,7 +329,7 @@ int mainWindows(int argc, char **argv) {
 
   dInfo("start to init service");
   dmSetSignalHandle();
-  int32_t code = dmRun();
+  int32_t code = dmRun(); //  关键运行函数
   dInfo("shutting down the service");
 
   dmCleanup();

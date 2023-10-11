@@ -103,9 +103,9 @@ int32_t dmInit() {
   if (!dmCheckDataDirVersion()) return -1;
   if (!dmCheckDiskSpace()) return -1;
   if (dmCheckRepeatInit(dmInstance()) != 0) return -1;
-  if (dmInitSystem() != 0) return -1;
-  if (dmInitMonitor() != 0) return -1;
-  if (dmInitDnode(dmInstance()) != 0) return -1;
+  if (dmInitSystem() != 0) return -1;// 系统初始化，信号、CRC32 
+  if (dmInitMonitor() != 0) return -1;// 监视器
+  if (dmInitDnode(dmInstance()) != 0) return -1; // 关键点， 初始化 Dnode(整个物理机器)
 
   dInfo("dnode env is initialized");
   return 0;

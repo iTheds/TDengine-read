@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 typedef struct SVnodeMgmt {
-  SDnodeData      *pData;
+  SDnodeData      *pData;//？？？干什么的
   SMsgCb           msgCb;
   const char      *path;
   const char      *name;
@@ -34,7 +34,7 @@ typedef struct SVnodeMgmt {
   SAutoQWorkerPool streamPool;
   SWWorkerPool     fetchPool;
   SSingleWorker    mgmtWorker;
-  SHashObj        *hash;
+  SHashObj        *hash;// 内部可能是 SVnodeObj，该处设计成这样是为了？？？，莫非是一个物理机中，分别只维护了一个 mnode_mgmt 、vnode_mgmt，然后其中以hash 的方式维护所有的 node 实体。所以，因为一个物理机上最多只有一个 mnode ，所以，mnode_mgmt 只需要承载一个 mnode 实体即可。
   TdThreadRwlock   lock;
   SVnodesStat      state;
   STfs            *pTfs;

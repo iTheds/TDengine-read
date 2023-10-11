@@ -117,7 +117,7 @@ typedef struct {
   GetVnodeLoadsFp     getVnodeLoadsFp;
   GetMnodeLoadsFp     getMnodeLoadsFp;
   GetQnodeLoadsFp     getQnodeLoadsFp;
-} SMgmtInputOpt;
+} SMgmtInputOpt;// 不知道干什么用的，管理节点输入配置？
 
 typedef struct {
   void *pMgmt;

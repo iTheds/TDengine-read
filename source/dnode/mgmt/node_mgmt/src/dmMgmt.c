@@ -94,16 +94,16 @@ static void dmClearVars(SDnode *pDnode) {
   memset(&pDnode->mutex, 0, sizeof(pDnode->mutex));
 }
 
-int32_t dmInitDnode(SDnode *pDnode) {
+int32_t dmInitDnode(SDnode *pDnode) {// 初始化每种节点的方法阵列、
   dDebug("start to create dnode");
   int32_t code = -1;
   char    path[PATH_MAX + 100] = {0};
 
-  if (dmInitVars(pDnode) != 0) {
+  if (dmInitVars(pDnode) != 0) {// 初始化 pDnode->data ，读取 eps 文件
     goto _OVER;
   }
-
-  pDnode->wrappers[DNODE].func = dmGetMgmtFunc();
+  // 从此处可以得知，一个设备机上(即主函数)，默认有五个节点的结构
+  pDnode->wrappers[DNODE].func = dmGetMgmtFunc();//载入方法阵列
   pDnode->wrappers[MNODE].func = mmGetMgmtFunc();
   pDnode->wrappers[VNODE].func = vmGetMgmtFunc();
   pDnode->wrappers[QNODE].func = qmGetMgmtFunc();
@@ -117,16 +117,16 @@ int32_t dmInitDnode(SDnode *pDnode) {
     taosThreadRwlockInit(&pWrapper->lock, NULL);
 
     snprintf(path, sizeof(path), "%s%s%s", tsDataDir, TD_DIRSEP, pWrapper->name);
-    pWrapper->path = strdup(path);
+    pWrapper->path = strdup(path);// 路径
     if (pWrapper->path == NULL) {
       terrno = TSDB_CODE_OUT_OF_MEMORY;
       goto _OVER;
     }
 
-    pWrapper->required = dmRequireNode(pDnode, pWrapper);
+    pWrapper->required = dmRequireNode(pDnode, pWrapper); // 生成对应的 SMgmtInputOpt ， 管理节点输入配置
   }
 
-  if (dmInitMsgHandle(pDnode) != 0) {
+  if (dmInitMsgHandle(pDnode) != 0) { // 初始化 msg 配置 
     dError("failed to init msg handles since %s", terrstr());
     goto _OVER;
   }
@@ -136,12 +136,12 @@ int32_t dmInitDnode(SDnode *pDnode) {
     goto _OVER;
   }
 
-  if (dmInitServer(pDnode) != 0) {
+  if (dmInitServer(pDnode) != 0) { // rpc 相关内容(生成诸多线程 trans-svr-work 线程)、
     dError("failed to init transport since %s", terrstr());
     goto _OVER;
   }
 
-  if (dmInitClient(pDnode) != 0) {
+  if (dmInitClient(pDnode) != 0) { // trans-cli-work 线程生成
     goto _OVER;
   }
 

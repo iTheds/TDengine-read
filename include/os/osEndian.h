@@ -13,6 +13,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+endian 字节存储顺序，即大端序或者小端序。
+
+*/
+
 #ifndef _TD_OS_ENDIAN_H_
 #define _TD_OS_ENDIAN_H_
 

@@ -308,6 +308,7 @@ typedef struct tmq_raw_data {
 
 typedef enum tmq_res_t tmq_res_t;
 
+// 消息队列， descript by lsd
 DLL_EXPORT const char *tmq_get_table_name(TAOS_RES *res);
 DLL_EXPORT tmq_res_t   tmq_get_res_type(TAOS_RES *res);
 DLL_EXPORT int32_t     tmq_get_raw(TAOS_RES *res, tmq_raw_data *raw);

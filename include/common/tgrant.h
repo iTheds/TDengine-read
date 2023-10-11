@@ -26,6 +26,10 @@ extern "C" {
 #include "tgrantCfg.h"
 #endif
 
+/*
+grant 为授权之意
+*/
+
 typedef enum {
   TSDB_GRANT_ALL,
   TSDB_GRANT_TIME,

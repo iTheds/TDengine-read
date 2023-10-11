@@ -929,7 +929,7 @@ void taosBlockSIGPIPE() {
   sigset_t signal_mask;
   sigemptyset(&signal_mask);//将信号集初始化为空
   sigaddset(&signal_mask, SIGPIPE);//把信号 SIGPIPE 添加到信号集 signal_mask 中
-  int32_t rc = pthread_sigmask(SIG_BLOCK, &signal_mask, NULL);
+  int32_t rc = pthread_sigmask(SIG_BLOCK, &signal_mask, NULL);//向当前的信号掩码中添加 signal_mask
   if (rc != 0) {
     // printf("failed to block SIGPIPE");
   }

@@ -79,7 +79,7 @@ typedef struct SDnode {
   TdThreadMutex mutex;
   TdFilePtr     lockfile;
   SDnodeData    data;
-  SMgmtWrapper  wrappers[NODE_END];
+  SMgmtWrapper  wrappers[NODE_END]; // 节点包装数组
 } SDnode;
 
 // dmEnv.c
