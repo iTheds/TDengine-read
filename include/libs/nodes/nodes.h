@@ -271,7 +271,7 @@ typedef enum ENodeType {
 /**
  * The first field of a node of any type is guaranteed to be the ENodeType.
  * Hence the type of any node can be gotten by casting it to SNode.
- */
+ */// 节点的第一个字段是 ENodeType，所以在内存中，只读取第一个字段就可以得知其是什么节点
 typedef struct SNode {
   ENodeType type;
 } SNode;

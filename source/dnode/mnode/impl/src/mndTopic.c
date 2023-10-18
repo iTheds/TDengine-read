@@ -361,7 +361,7 @@ static int32_t extractTopicTbInfo(SNode *pAst, SMqTopicObj *pTopic) {
   nodesDestroyList(pNodeList);
   return 0;
 }
-
+// 创建一个topic ，其中 pReq 没有什么作用，pDb 只提供部分数据库信息
 static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *pCreate, SDbObj *pDb,
                               const char *userName) {
   mInfo("topic:%s to create", pCreate->name);
@@ -556,19 +556,19 @@ static int32_t mndProcessCreateTopicReq(SRpcMsg *pReq) {
   SDbObj           *pDb = NULL;
   SCMCreateTopicReq createTopicReq = {0};
 
-  if (tDeserializeSCMCreateTopicReq(pReq->pCont, pReq->contLen, &createTopicReq) != 0) {
+  if (tDeserializeSCMCreateTopicReq(pReq->pCont, pReq->contLen, &createTopicReq) != 0) {// 反序列化到 SCMCreateTopicReq 
     terrno = TSDB_CODE_INVALID_MSG;
     goto _OVER;
   }
 
   mInfo("topic:%s, start to create, sql:%s", createTopicReq.name, createTopicReq.sql);
 
-  if (mndCheckCreateTopicReq(&createTopicReq) != 0) {
+  if (mndCheckCreateTopicReq(&createTopicReq) != 0) {// 对内部的一些 enum 进行判断
     mError("topic:%s, failed to create since %s", createTopicReq.name, terrstr());
     goto _OVER;
   }
 
-  pTopic = mndAcquireTopic(pMnode, createTopicReq.name);
+  pTopic = mndAcquireTopic(pMnode, createTopicReq.name);// 先在 mnode 中检索，如果存在，则开始结束步骤
   if (pTopic != NULL) {
     if (createTopicReq.igExists) {
       mInfo("topic:%s, already exist, ignore exist is set", createTopicReq.name);
@@ -582,13 +582,13 @@ static int32_t mndProcessCreateTopicReq(SRpcMsg *pReq) {
     goto _OVER;
   }
 
-  pDb = mndAcquireDb(pMnode, createTopicReq.subDbName);
+  pDb = mndAcquireDb(pMnode, createTopicReq.subDbName);// 不存在，则开始， 查验 数据库名称
   if (pDb == NULL) {
     terrno = TSDB_CODE_MND_DB_NOT_SELECTED;
     goto _OVER;
   }
 
-  code = mndCreateTopic(pMnode, pReq, &createTopicReq, pDb, pReq->info.conn.user);
+  code = mndCreateTopic(pMnode, pReq, &createTopicReq, pDb, pReq->info.conn.user);// 创建一个 topic
   if (code == 0) code = TSDB_CODE_ACTION_IN_PROGRESS;
 
 _OVER:

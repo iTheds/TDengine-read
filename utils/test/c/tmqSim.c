@@ -862,7 +862,7 @@ void loop_consume(SThreadInfo* pInfo) {
 void* consumeThreadFunc(void* param) {
   SThreadInfo* pInfo = (SThreadInfo*)param;
 
-  pInfo->taos = createNewTaosConnect();
+  pInfo->taos = createNewTaosConnect();//taos_connect
   if (pInfo->taos == NULL) {
     taosFprintfFile(g_fp, "taos_connect() fail, can not notify and save consume result to main scripte\n");
     return NULL;
@@ -1455,6 +1455,7 @@ void startOmbConsume() {
   return;
 }
 
+// 一个基本示例
 int main(int32_t argc, char* argv[]) {
   parseArgument(argc, argv);
 
@@ -1480,7 +1481,7 @@ int main(int32_t argc, char* argv[]) {
   taosFprintfFile(g_fp, "==== create %d consume thread ====\n", g_stConfInfo.numOfThread);
   for (int32_t i = 0; i < g_stConfInfo.numOfThread; ++i) {
     taosThreadCreate(&(g_stConfInfo.stThreads[i].thread), &thattr, consumeThreadFunc,
-                     (void*)(&(g_stConfInfo.stThreads[i])));
+                     (void*)(&(g_stConfInfo.stThreads[i])));// 创建一个消费者模型
   }
 
   int64_t start = taosGetTimestampUs();
