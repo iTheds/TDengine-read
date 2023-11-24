@@ -118,7 +118,7 @@ typedef enum {
 
 typedef enum {
   TRN_EXEC_PRARLLEL = 0,
-  TRN_EXEC_SERIAL = 1,
+  TRN_EXEC_SERIAL = 1, // 是否连续
 } ETrnExec;
 
 typedef enum {
@@ -143,7 +143,7 @@ typedef enum {
   CONSUMER_UPDATE__RECOVER,
   CONSUMER_UPDATE__MODIFY,
 } ECsmUpdateType;
-
+// 事务
 typedef struct {
   int32_t     id;
   ETrnStage   stage;
@@ -158,7 +158,7 @@ typedef struct {
   int32_t     redoActionPos;
   SArray*     redoActions;
   SArray*     undoActions;
-  SArray*     commitActions;
+  SArray*     commitActions;// STransAction
   int64_t     createdTime;
   int64_t     lastExecTime;
   int32_t     lastAction;
@@ -315,7 +315,7 @@ typedef struct {
   int64_t walRetentionSize;
   int64_t walSegmentSize;
 } SDbCfg;
-
+// 
 typedef struct {
   char     name[TSDB_DB_FNAME_LEN];
   char     acct[TSDB_USER_LEN];
@@ -336,7 +336,7 @@ typedef struct {
   bool       syncRestore;
   bool       syncCanRead;
 } SVnodeGid;
-
+// 
 typedef struct {
   int32_t   vgId;
   int64_t   createdTime;
@@ -388,6 +388,7 @@ typedef struct {
   SSchemaWrapper schemaTag;  // for dstVgroup
 } SSmaObj;
 
+// 超级表
 typedef struct {
   char     name[TSDB_TABLE_FNAME_LEN];
   char     db[TSDB_DB_FNAME_LEN];
@@ -506,7 +507,7 @@ typedef struct {
   int32_t  status;
   int32_t  hbStatus;          // hbStatus is not applicable to serialization
   SRWLatch lock;              // lock is used for topics update
-  SArray*  currentTopics;     // SArray<char*>
+  SArray*  currentTopics;     // SArray<char*>// 字符串数组
   SArray*  rebNewTopics;      // SArray<char*>
   SArray*  rebRemovedTopics;  // SArray<char*>
 

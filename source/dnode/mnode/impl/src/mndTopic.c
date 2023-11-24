@@ -43,7 +43,7 @@ static void    mndCancelGetNextTopic(SMnode *pMnode, void *pIter);
 static int32_t mndSetDropTopicCommitLogs(SMnode *pMnode, STrans *pTrans, SMqTopicObj *pTopic);
 
 int32_t mndInitTopic(SMnode *pMnode) {
-  SSdbTable table = {
+  SSdbTable table = {// 
       .sdbType = SDB_TOPIC,
       .keyType = SDB_KEY_BINARY,
       .encodeFp = (SdbEncodeFp)mndTopicActionEncode,
@@ -340,7 +340,7 @@ static int32_t mndCheckCreateTopicReq(SCMCreateTopicReq *pCreate) {
   terrno = TSDB_CODE_SUCCESS;
   return 0;
 }
-
+// 提取主题Tb信息
 static int32_t extractTopicTbInfo(SNode *pAst, SMqTopicObj *pTopic) {
   SNodeList *pNodeList = NULL;
   nodesCollectColumns((SSelectStmt *)pAst, SQL_CLAUSE_FROM, NULL, COLLECT_COL_TYPE_ALL, &pNodeList);
@@ -370,13 +370,13 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
   tstrncpy(topicObj.db, pDb->name, TSDB_DB_FNAME_LEN);
   tstrncpy(topicObj.createUser, userName, TSDB_USER_LEN);
 
-  if (mndCheckTopicPrivilege(pMnode, pReq->info.conn.user, MND_OPER_CREATE_TOPIC, &topicObj) != 0) {
+  if (mndCheckTopicPrivilege(pMnode, pReq->info.conn.user, MND_OPER_CREATE_TOPIC, &topicObj) != 0) {// 权限查验，暂时未开发
     return -1;
   }
-
+  
   topicObj.createTime = taosGetTimestampMs();
   topicObj.updateTime = topicObj.createTime;
-  topicObj.uid = mndGenerateUid(pCreate->name, strlen(pCreate->name));
+  topicObj.uid = mndGenerateUid(pCreate->name, strlen(pCreate->name));// 获取 hash 值
   topicObj.dbUid = pDb->uid;
   topicObj.version = 1;
   topicObj.sql = strdup(pCreate->sql);
@@ -397,7 +397,7 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
 
     qDebugL("ast %s", topicObj.ast);
 
-    SNode *pAst = NULL;
+    SNode *pAst = NULL;//SSelectStmt
     if (nodesStringToNode(pCreate->ast, &pAst) != 0) {
       taosMemoryFree(topicObj.ast);
       taosMemoryFree(topicObj.sql);
@@ -407,8 +407,8 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
 
     SQueryPlan *pPlan = NULL;
 
-    SPlanContext cxt = {.pAstRoot = pAst, .topicQuery = true};
-    if (qCreateQueryPlan(&cxt, &pPlan, NULL) != 0) {
+    SPlanContext cxt = {.pAstRoot = pAst, .topicQuery = true};// 辅助内容
+    if (qCreateQueryPlan(&cxt, &pPlan, NULL) != 0) {// 新建一个计划，建立完成后是一个空计划
       mError("topic:%s, failed to create since %s", pCreate->name, terrstr());
       taosMemoryFree(topicObj.ast);
       taosMemoryFree(topicObj.sql);
@@ -421,21 +421,21 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
       terrno = TSDB_CODE_OUT_OF_MEMORY;
       return -1;
     }
-    extractTopicTbInfo(pAst, &topicObj);
+    extractTopicTbInfo(pAst, &topicObj);// 提取主题Tb信息 ？？？
 
     if (topicObj.ntbUid == 0) {
       taosArrayDestroy(topicObj.ntbColIds);
       topicObj.ntbColIds = NULL;
     }
 
-    if (qExtractResultSchema(pAst, &topicObj.schema.nCols, &topicObj.schema.pSchema) != 0) {
+    if (qExtractResultSchema(pAst, &topicObj.schema.nCols, &topicObj.schema.pSchema) != 0) {// 提取结果架构
       mError("topic:%s, failed to create since %s", pCreate->name, terrstr());
       taosMemoryFree(topicObj.ast);
       taosMemoryFree(topicObj.sql);
       return -1;
     }
 
-    if (nodesNodeToString((SNode *)pPlan, false, &topicObj.physicalPlan, NULL) != 0) {
+    if (nodesNodeToString((SNode *)pPlan, false, &topicObj.physicalPlan, NULL) != 0) {// SQueryPlan 转换为 string
       mError("topic:%s, failed to create since %s", pCreate->name, terrstr());
       taosMemoryFree(topicObj.ast);
       taosMemoryFree(topicObj.sql);
@@ -444,13 +444,13 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
     nodesDestroyNode(pAst);
     nodesDestroyNode((SNode *)pPlan);
   } else if (pCreate->subType == TOPIC_SUB_TYPE__TABLE) {
-    SStbObj *pStb = mndAcquireStb(pMnode, pCreate->subStbName);
+    SStbObj *pStb = mndAcquireStb(pMnode, pCreate->subStbName);// 对 pStb 上锁
     if (pStb == NULL) {
       terrno = TSDB_CODE_MND_STB_NOT_EXIST;
       return -1;
     }
     topicObj.stbUid = pStb->uid;
-    mndReleaseStb(pMnode, pStb);
+    mndReleaseStb(pMnode, pStb);// 对 pStb 解锁
   }
   /*} else if (pCreate->subType == TOPIC_SUB_TYPE__DB) {*/
   /*topicObj.ast = NULL;*/
@@ -459,7 +459,7 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
   /*topicObj.withTbName = 1;*/
   /*topicObj.withSchema = 1;*/
 
-  STrans *pTrans = mndTransCreate(pMnode, TRN_POLICY_ROLLBACK, TRN_CONFLICT_NOTHING, pReq, "create-topic");
+  STrans *pTrans = mndTransCreate(pMnode, TRN_POLICY_ROLLBACK, TRN_CONFLICT_NOTHING, pReq, "create-topic");// 创建事务？？
   if (pTrans == NULL) {
     mError("topic:%s, failed to create since %s", pCreate->name, terrstr());
     taosMemoryFreeClear(topicObj.ast);
@@ -469,14 +469,14 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
   }
   mInfo("trans:%d, used to create topic:%s", pTrans->id, pCreate->name);
 
-  SSdbRaw *pCommitRaw = mndTopicActionEncode(&topicObj);
-  if (pCommitRaw == NULL || mndTransAppendCommitlog(pTrans, pCommitRaw) != 0) {
+  SSdbRaw *pCommitRaw = mndTopicActionEncode(&topicObj);// 将动作转换为一个原生数据
+  if (pCommitRaw == NULL || mndTransAppendCommitlog(pTrans, pCommitRaw) != 0) {// 添加到提交队列中
     mError("trans:%d, failed to append commit log since %s", pTrans->id, terrstr());
     taosMemoryFreeClear(topicObj.physicalPlan);
     mndTransDrop(pTrans);
     return -1;
   }
-  (void)sdbSetRawStatus(pCommitRaw, SDB_STATUS_READY);
+  (void)sdbSetRawStatus(pCommitRaw, SDB_STATUS_READY);// 设置其 状态
 
   if (topicObj.ntbUid != 0) {
     STqCheckInfo info;
@@ -488,10 +488,10 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
     SSdb   *pSdb = pMnode->pSdb;
     SVgObj *pVgroup = NULL;
     while (1) {
-      // iterate vg
+      // iterate vg// sdbFetch 将内容输出到 pVgroup， 返回行数据
       pIter = sdbFetch(pSdb, SDB_VGROUP, pIter, (void **)&pVgroup);
       if (pIter == NULL) break;
-      if (!mndVgroupInDb(pVgroup, topicObj.dbUid)) {
+      if (!mndVgroupInDb(pVgroup, topicObj.dbUid)) {//判断该 vgroup 是否在 db 中
         sdbRelease(pSdb, pVgroup);
         continue;
       }
@@ -522,7 +522,7 @@ static int32_t mndCreateTopic(SMnode *pMnode, SRpcMsg *pReq, SCMCreateTopicReq *
       action.pCont = buf;
       action.contLen = sizeof(SMsgHead) + len;
       action.msgType = TDMT_VND_TMQ_ADD_CHECKINFO;
-      if (mndTransAppendRedoAction(pTrans, &action) != 0) {
+      if (mndTransAppendRedoAction(pTrans, &action) != 0) {// 添加到 redo 队列中
         taosMemoryFree(buf);
         sdbRelease(pSdb, pVgroup);
         mndTransDrop(pTrans);

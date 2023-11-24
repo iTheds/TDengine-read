@@ -2718,7 +2718,7 @@ static int32_t tableCountScanOptimize(SOptimizeContext* pCxt, SLogicSubplan* pLo
   return code;
 }
 
-// clang-format off
+// clang-format off// 优化规则，包括逻辑和物理， by lisideng
 static const SOptimizeRule optimizeRuleSet[] = {
   {.pName = "ScanPath",                   .optimizeFunc = scanPathOptimize},
   {.pName = "PushDownCondition",          .optimizeFunc = pushDownCondOptimize},

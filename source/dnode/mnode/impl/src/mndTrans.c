@@ -617,7 +617,7 @@ void mndReleaseTrans(SMnode *pMnode, STrans *pTrans) {
   SSdb *pSdb = pMnode->pSdb;
   sdbRelease(pSdb, pTrans);
 }
-
+/// 创建一个事务，保留 rpc 中信道信息
 STrans *mndTransCreate(SMnode *pMnode, ETrnPolicy policy, ETrnConflct conflict, const SRpcMsg *pReq,
                        const char *opername) {
   STrans *pTrans = taosMemoryCalloc(1, sizeof(STrans));
@@ -709,7 +709,7 @@ int32_t mndTransAppendUndolog(STrans *pTrans, SSdbRaw *pRaw) {
   STransAction action = {.stage = TRN_STAGE_UNDO_ACTION, .actionType = TRANS_ACTION_RAW, .pRaw = pRaw};
   return mndTransAppendAction(pTrans->undoActions, &action);
 }
-
+// 将操作对象存放到 commitActions 数组中
 int32_t mndTransAppendCommitlog(STrans *pTrans, SSdbRaw *pRaw) {
   STransAction action = {.stage = TRN_STAGE_COMMIT_ACTION, .actionType = TRANS_ACTION_RAW, .pRaw = pRaw};
   return mndTransAppendAction(pTrans->commitActions, &action);
@@ -782,9 +782,9 @@ void mndTransSetDbName(STrans *pTrans, const char *dbname, const char *stbname) 
 void mndTransSetSerial(STrans *pTrans) { pTrans->exec = TRN_EXEC_SERIAL; }
 
 void mndTransSetOper(STrans *pTrans, EOperType oper) { pTrans->oper = oper; }
-
+/// 事务同步处理
 static int32_t mndTransSync(SMnode *pMnode, STrans *pTrans) {
-  SSdbRaw *pRaw = mndTransActionEncode(pTrans);
+  SSdbRaw *pRaw = mndTransActionEncode(pTrans);// 事务解码为原生结构
   if (pRaw == NULL) {
     mError("trans:%d, failed to encode while sync trans since %s", pTrans->id, terrstr());
     return -1;
@@ -873,7 +873,9 @@ int32_t mndTrancCheckConflict(SMnode *pMnode, STrans *pTrans) {
 
   return 0;
 }
-
+/// 准备并且 mndTransExecute// 事务同步、事务执行 ;
+/// 创建一个新的事务， 进行 mndTransExecute 执行 。
+/// 查找同 id 的事务， 但是没有找到有把 id 放入到 pMnode 中的操作 ???
 int32_t mndTransPrepare(SMnode *pMnode, STrans *pTrans) {
   if (mndTrancCheckConflict(pMnode, pTrans) != 0) {
     return -1;
@@ -886,7 +888,7 @@ int32_t mndTransPrepare(SMnode *pMnode, STrans *pTrans) {
   }
 
   mInfo("trans:%d, prepare transaction", pTrans->id);
-  if (mndTransSync(pMnode, pTrans) != 0) {
+  if (mndTransSync(pMnode, pTrans) != 0) {// 同步处理
     mError("trans:%d, failed to prepare since %s", pTrans->id, terrstr());
     return -1;
   }
@@ -1182,7 +1184,7 @@ static int32_t mndTransExecNullMsg(SMnode *pMnode, STrans *pTrans, STransAction 
 
 static int32_t mndTransExecSingleAction(SMnode *pMnode, STrans *pTrans, STransAction *pAction) {
   if (pAction->actionType == TRANS_ACTION_RAW) {
-    return mndTransWriteSingleLog(pMnode, pTrans, pAction);
+    return mndTransWriteSingleLog(pMnode, pTrans, pAction);// 主要 sdbWriteWithoutFree
   } else if (pAction->actionType == TRANS_ACTION_MSG) {
     return mndTransSendSingleMsg(pMnode, pTrans, pAction);
   } else {
@@ -1202,11 +1204,12 @@ static int32_t mndTransExecSingleActions(SMnode *pMnode, STrans *pTrans, SArray 
 
   return code;
 }
-
+// 执行该事务下队列的
 static int32_t mndTransExecuteActions(SMnode *pMnode, STrans *pTrans, SArray *pArray) {
   int32_t numOfActions = taosArrayGetSize(pArray);
   if (numOfActions == 0) return 0;
 
+  // 依次执行其中的 STransAction
   if (mndTransExecSingleActions(pMnode, pTrans, pArray) != 0) {
     return -1;
   }
@@ -1260,7 +1263,7 @@ static int32_t mndTransExecuteUndoActions(SMnode *pMnode, STrans *pTrans) {
   }
   return code;
 }
-
+// 执行一系列的 commitActions， 主要调用 mndTransExecuteActions
 static int32_t mndTransExecuteCommitActions(SMnode *pMnode, STrans *pTrans) {
   int32_t code = mndTransExecuteActions(pMnode, pTrans, pTrans->commitActions);
   if (code != 0 && code != TSDB_CODE_ACTION_IN_PROGRESS) {
@@ -1509,7 +1512,7 @@ void mndTransExecute(SMnode *pMnode, STrans *pTrans, bool isLeader) {
     mInfo("trans:%d, continue to execute, stage:%s createTime:%" PRId64 " leader:%d", pTrans->id,
           mndTransStr(pTrans->stage), pTrans->createdTime, isLeader);
     pTrans->lastExecTime = taosGetTimestampMs();
-    switch (pTrans->stage) {
+    switch (pTrans->stage) { // 该 switch 中包含所有阵列函数， 函数内部决定是否继续执行
       case TRN_STAGE_PREPARE:
         continueExec = mndTransPerformPrepareStage(pMnode, pTrans);
         break;
@@ -1524,7 +1527,7 @@ void mndTransExecute(SMnode *pMnode, STrans *pTrans, bool isLeader) {
           continueExec = false;
         }
         break;
-      case TRN_STAGE_COMMIT_ACTION:
+      case TRN_STAGE_COMMIT_ACTION:// 提交 ， 执行
         continueExec = mndTransPerformCommitActionStage(pMnode, pTrans);
         break;
       case TRN_STAGE_ROLLBACK:

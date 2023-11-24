@@ -44,9 +44,11 @@ typedef struct {
   ETrnAct   actionType;
   ETrnStage stage;
   int8_t    reserved;
-  int8_t    rawWritten;
+  
+  int8_t    rawWritten; // 写标志位
   int8_t    msgSent;
-  int8_t    msgReceived;
+  int8_t    msgReceived; // 接收表示位
+
   tmsg_t    msgType;
   SEpSet    epSet;
   int32_t   contLen;

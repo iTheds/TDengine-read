@@ -240,7 +240,7 @@ int32_t sdbWriteWithoutFree(SSdb *pSdb, SSdbRaw *pRaw) {
   if (hash == NULL) return terrno;
 
   SdbDecodeFp decodeFp = pSdb->decodeFps[pRaw->type];
-  SSdbRow    *pRow = (*decodeFp)(pRaw);
+  SSdbRow    *pRow = (*decodeFp)(pRaw);// 解码出一行数据
   if (pRow == NULL) return terrno;
 
   pRow->type = pRaw->type;
@@ -364,7 +364,7 @@ void sdbRelease(SSdb *pSdb, void *pObj) { sdbReleaseLock(pSdb, pObj, true); }
 void *sdbFetch(SSdb *pSdb, ESdbType type, void *pIter, void **ppObj) {
   *ppObj = NULL;
 
-  SHashObj *hash = sdbGetHash(pSdb, type);
+  SHashObj *hash = sdbGetHash(pSdb, type);// return pSdb->hashObjs[type]
   if (hash == NULL) return NULL;
 
   sdbReadLock(pSdb, type);

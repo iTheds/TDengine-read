@@ -456,7 +456,7 @@ static int32_t tqInitTaosxRsp(STaosxRsp* pRsp, const SMqPollReq* pReq) {
   }
   return 0;
 }
-
+// fetch 时调用到该处, 对订阅的数据进行消费
 int32_t tqProcessPollReq(STQ* pTq, SRpcMsg* pMsg) {
   SMqPollReq   req = {0};
   int32_t      code = 0;
@@ -561,12 +561,12 @@ int32_t tqProcessPollReq(STQ* pTq, SRpcMsg* pMsg) {
     }
   }
 
-  if (pHandle->execHandle.subType == TOPIC_SUB_TYPE__COLUMN) {
+  if (pHandle->execHandle.subType == TOPIC_SUB_TYPE__COLUMN) {// 如果是列订阅
     SMqDataRsp dataRsp = {0};
-    tqInitDataRsp(&dataRsp, &req, pHandle->execHandle.subType);
+    tqInitDataRsp(&dataRsp, &req, pHandle->execHandle.subType);// 初始化响应包
     // lock
     taosWLockLatch(&pTq->pushLock);
-    tqScanData(pTq, pHandle, &dataRsp, &fetchOffsetNew);
+    tqScanData(pTq, pHandle, &dataRsp, &fetchOffsetNew);// 扫描表
 
 #if 1
     if (dataRsp.blockNum == 0 && dataRsp.reqOffset.type == TMQ_OFFSET__LOG &&

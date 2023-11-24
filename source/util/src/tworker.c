@@ -355,7 +355,7 @@ static void *tWWorkerThreadFp(SWWorker *worker) {
     if (qinfo.fp != NULL) {
       qinfo.workerId = worker->id;
       qinfo.threadNum = pool->num;
-      (*((FItems)qinfo.fp))(&qinfo, worker->qall, numOfMsgs);//vmProcessSyncQueue， 0x555555670efc <vnodeApplyWriteMsg>
+      (*((FItems)qinfo.fp))(&qinfo, worker->qall, numOfMsgs);//vmProcessSyncQueue， 0x555555670efc <vnodeApplyWriteMsg>, 0x55555567090e <vnodeProposeWriteMsg>, 0x5555555d5b8b <vmProcessFetchQueue>
     }
     taosUpdateItemSize(qinfo.queue, numOfMsgs);
   }

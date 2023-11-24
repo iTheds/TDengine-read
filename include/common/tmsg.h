@@ -232,6 +232,7 @@ typedef struct SEp {
   uint16_t port;
 } SEp;
 
+/// 通常作为一个返回的 req 的 head , 通过此来判断其具有多长, 并且判断 所属 VG id .
 typedef struct {
   int32_t contLen;
   int32_t vgId;

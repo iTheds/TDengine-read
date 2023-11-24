@@ -149,23 +149,23 @@ typedef enum {
   SDB_FUNC = 20,
   SDB_MAX = 21
 } ESdbType;
-
+// 原生的？？？
 typedef struct SSdbRaw {
   int8_t  type;
-  int8_t  status;
+  int8_t  status; // ESdbStatus
   int8_t  sver;
   int8_t  reserved;
   int32_t dataLen;
   char    pData[];
 } SSdbRaw;
-
+// 一行的数据
 typedef struct SSdbRow {
   ESdbType   type;
   ESdbStatus status;
   int32_t    refCount;
   char       pObj[];
 } SSdbRow;
-
+// 实现了一个保存表、流元信息的结构，在 mnode 中保存
 typedef struct SSdb {
   SMnode        *pMnode;// 上级指针
   SWal          *pWal;
@@ -181,7 +181,7 @@ typedef struct SSdb {
   int64_t        tableVer[SDB_MAX];
   int64_t        maxId[SDB_MAX];
   EKeyType       keyTypes[SDB_MAX];
-  SHashObj      *hashObjs[SDB_MAX];
+  SHashObj      *hashObjs[SDB_MAX];// 内容实体
   TdThreadRwlock locks[SDB_MAX];
   SdbInsertFp    insertFps[SDB_MAX];
   SdbUpdateFp    updateFps[SDB_MAX];
@@ -198,6 +198,7 @@ typedef struct SSdbIter {
   char     *name;
 } SSdbIter;
 
+// 为事务执行而设计的方法群
 typedef struct {
   ESdbType    sdbType;
   EKeyType    keyType;

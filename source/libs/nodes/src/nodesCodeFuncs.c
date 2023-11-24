@@ -4940,7 +4940,7 @@ static int32_t jsonToNode(const SJson* pJson, void* pObj) {
 
 static int32_t makeNodeByJson(const SJson* pJson, SNode** pNode) {
   int32_t val = 0;
-  int32_t code = tjsonGetIntValue(pJson, jkNodeType, &val);
+  int32_t code = tjsonGetIntValue(pJson, jkNodeType, &val);// 关键步骤， 在 Json 中取出实际的数据
   if (TSDB_CODE_SUCCESS == code) {
     *pNode = nodesMakeNode(val);
     if (NULL == *pNode) {

@@ -198,7 +198,7 @@ _OVER:
   dmReleaseWrapper(pWrapper);
 }
 
-int32_t dmInitMsgHandle(SDnode *pDnode) {
+int32_t dmInitMsgHandle(SDnode *pDnode) {// 每个节点的响应 msg 函数初始化
   SDnodeTrans *pTrans = &pDnode->trans;
 
   for (EDndNodeType ntype = DNODE; ntype < NODE_END; ++ntype) {

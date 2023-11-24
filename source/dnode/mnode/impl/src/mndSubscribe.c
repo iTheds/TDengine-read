@@ -104,7 +104,7 @@ static SMqSubscribeObj *mndCreateSub(SMnode *pMnode, const SMqTopicObj *pTopic, 
 
   return pSub;
 }
-
+/// 创建 subcribe ,构建成 SMsgHead 和 SMqRebVgReq req 的组合 内存,返回
 static int32_t mndBuildSubChangeReq(void **pBuf, int32_t *pLen, const SMqSubscribeObj *pSub,
                                     const SMqRebOutputVg *pRebVg) {
   SMqRebVgReq req = {0};
@@ -170,7 +170,7 @@ static int32_t mndPersistSubChangeVgReq(SMnode *pMnode, STrans *pTrans, const SM
   }
   return 0;
 }
-
+/// 提取出 topic 和 cgroup
 static int32_t mndSplitSubscribeKey(const char *key, char *topic, char *cgroup, bool fullName) {
   int32_t i = 0;
   while (key[i] != TMQ_SEPARATOR) {
@@ -189,6 +189,7 @@ static int32_t mndSplitSubscribeKey(const char *key, char *topic, char *cgroup, 
   return 0;
 }
 
+// consumer 中具有同名函数,在 hash 中找到或者生成一个 key 的目标 hash 表征结构
 static SMqRebInfo *mndGetOrCreateRebSub(SHashObj *pHash, const char *key) {
   SMqRebInfo *pRebSub = taosHashGet(pHash, key, strlen(key) + 1);
   if (pRebSub == NULL) {
@@ -821,7 +822,7 @@ static int32_t mndSubActionUpdate(SSdb *pSdb, SMqSubscribeObj *pOldSub, SMqSubsc
   taosWUnLockLatch(&pOldSub->lock);
   return 0;
 }
-
+// 返回一个新的字符形式 ， key = cgroup + TMQ_SEPARATOR + topicName
 int32_t mndMakeSubscribeKey(char *key, const char *cgroup, const char *topicName) {
   int32_t tlen = strlen(cgroup);
   memcpy(key, cgroup, tlen);
@@ -994,7 +995,8 @@ static int32_t mndRetrieveSubscribe(SRpcMsg *pReq, SShowObj *pShow, SSDataBlock 
         mndSplitSubscribeKey(pSub->key, varDataVal(topic), varDataVal(cgroup), false);
         varDataSetLen(topic, strlen(varDataVal(topic)));
         varDataSetLen(cgroup, strlen(varDataVal(cgroup)));
-
+        
+        // 疑似修改内存中的数据块，其标志位
         pColInfo = taosArrayGet(pBlock->pDataBlock, cols++);
         colDataAppend(pColInfo, numOfRows, (const char *)topic, false);
 

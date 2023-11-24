@@ -201,7 +201,7 @@ FAIL:
   mndTransDrop(pTrans);
   return -1;
 }
-
+// 将 key 放入 pHash ,如果其没有就新建立一个
 static SMqRebInfo *mndGetOrCreateRebSub(SHashObj *pHash, const char *key) {
   SMqRebInfo *pRebInfo = taosHashGet(pHash, key, strlen(key) + 1);
   if (pRebInfo == NULL) {
@@ -232,7 +232,7 @@ static int32_t mndProcessMqTimerMsg(SRpcMsg *pMsg) {
   }
 
   SMqDoRebalanceMsg *pRebMsg = rpcMallocCont(sizeof(SMqDoRebalanceMsg));
-  pRebMsg->rebSubHash = taosHashInit(64, MurmurHash3_32, true, HASH_NO_LOCK);
+  pRebMsg->rebSubHash = taosHashInit(64, MurmurHash3_32, true, HASH_NO_LOCK);// 生成一个 hash 列
   // TODO set cleanfp
 
   // iterate all consumers, find all modification
@@ -273,9 +273,9 @@ static int32_t mndProcessMqTimerMsg(SRpcMsg *pMsg) {
       int32_t topicNum = taosArrayGetSize(pConsumer->currentTopics);
       for (int32_t i = 0; i < topicNum; i++) {
         char  key[TSDB_SUBSCRIBE_KEY_LEN];
-        char *removedTopic = taosArrayGetP(pConsumer->currentTopics, i);
-        mndMakeSubscribeKey(key, pConsumer->cgroup, removedTopic);
-        SMqRebInfo *pRebSub = mndGetOrCreateRebSub(pRebMsg->rebSubHash, key);
+        char *removedTopic = taosArrayGetP(pConsumer->currentTopics, i);// 取出当前的 topic
+        mndMakeSubscribeKey(key, pConsumer->cgroup, removedTopic);// 组合成新的 key 字符串
+        SMqRebInfo *pRebSub = mndGetOrCreateRebSub(pRebMsg->rebSubHash, key);// 
         taosArrayPush(pRebSub->removedConsumers, &pConsumer->consumerId);
       }
       taosRUnLockLatch(&pConsumer->lock);
@@ -494,7 +494,7 @@ static int32_t mndProcessAskEpReq(SRpcMsg *pMsg) {
   ((SMqRspHead *)buf)->consumerId = pConsumer->consumerId;
 
   void *abuf = POINTER_SHIFT(buf, sizeof(SMqRspHead));
-  tEncodeSMqAskEpRsp(&abuf, &rsp);
+  tEncodeSMqAskEpRsp(&abuf, &rsp);// 
 
   // release consumer and free memory
   tDeleteSMqAskEpRsp(&rsp);
@@ -538,8 +538,8 @@ static int32_t mndProcessSubscribeReq(SRpcMsg *pMsg) {
 
   int32_t code = -1;
   SArray *newSub = subscribe.topicNames;
-  taosArraySort(newSub, taosArrayCompareString);
-  taosArrayRemoveDuplicateP(newSub, taosArrayCompareString, taosMemoryFree);
+  taosArraySort(newSub, taosArrayCompareString);// 排序
+  taosArrayRemoveDuplicateP(newSub, taosArrayCompareString, taosMemoryFree);// 
 
   int32_t newTopicNum = taosArrayGetSize(newSub);
   // check topic existance
@@ -611,6 +611,7 @@ static int32_t mndProcessSubscribeReq(SRpcMsg *pMsg) {
       oldTopicNum = taosArrayGetSize(pConsumerOld->currentTopics);
     }
 
+    // 某种分配规则
     int32_t i = 0, j = 0;
     while (i < oldTopicNum || j < newTopicNum) {
       if (i >= oldTopicNum) {

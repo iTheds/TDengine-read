@@ -183,13 +183,18 @@ int32_t compareDoubleVal(const void *pLeft, const void *pRight) {
 }
 
 int32_t compareDoubleValDesc(const void *pLeft, const void *pRight) { return compareDoubleVal(pRight, pLeft); }
-
+/* 该函数表示:
+比较传入的两个字符串,其第一个 u16 为其总长度.
+然后比较两者都合法的长度范围内, 其字符是否相等.
+如果是 ,则判断其长度是否一致, 是 则返回 0;不是,则判断长度,如果第一个入参更大, 则返回 1, 否则返回 -1;
+如果规定范围内字符不相等, 则返回同 strcmp , 如果第一个入参比较更大, 则返回 1, 否则返回 -1;
+*/
 int32_t compareLenPrefixedStr(const void *pLeft, const void *pRight) {
-  int32_t len1 = varDataLen(pLeft);
+  int32_t len1 = varDataLen(pLeft);// 转换成 ((uint16_t *)(pLeft))[0]
   int32_t len2 = varDataLen(pRight);
 
-  int32_t minLen = TMIN(len1, len2);
-  int32_t ret = strncmp(varDataVal(pLeft), varDataVal(pRight), minLen);
+  int32_t minLen = TMIN(len1, len2);// 返回其中小的值
+  int32_t ret = strncmp(varDataVal(pLeft), varDataVal(pRight), minLen);// ((char *)(pLeft) + sizeof(uint16_t)), 指向 pLeft 后面 sizeof(uint16_t) 字节的位置
   if (ret == 0) {
     if (len1 == len2) {
       return 0;

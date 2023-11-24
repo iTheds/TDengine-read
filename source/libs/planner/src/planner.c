@@ -35,22 +35,22 @@ int32_t qCreateQueryPlan(SPlanContext* pCxt, SQueryPlan** pPlan, SArray* pExecNo
 
   int32_t code = nodesAcquireAllocator(pCxt->allocatorId);
   if (TSDB_CODE_SUCCESS == code) {
-    code = createLogicPlan(pCxt, &pLogicSubplan);
+    code = createLogicPlan(pCxt, &pLogicSubplan);// 创建逻辑计划
   }
   if (TSDB_CODE_SUCCESS == code) {
-    code = optimizeLogicPlan(pCxt, pLogicSubplan);
+    code = optimizeLogicPlan(pCxt, pLogicSubplan);// 优化
   }
   if (TSDB_CODE_SUCCESS == code) {
-    code = splitLogicPlan(pCxt, pLogicSubplan);
+    code = splitLogicPlan(pCxt, pLogicSubplan);// 切割 逻辑 计划
   }
   if (TSDB_CODE_SUCCESS == code) {
-    code = scaleOutLogicPlan(pCxt, pLogicSubplan, &pLogicPlan);
+    code = scaleOutLogicPlan(pCxt, pLogicSubplan, &pLogicPlan);// 水平扩展 逻辑计划
   }
   if (TSDB_CODE_SUCCESS == code) {
-    code = createPhysiPlan(pCxt, pLogicPlan, pPlan, pExecNodeList);
+    code = createPhysiPlan(pCxt, pLogicPlan, pPlan, pExecNodeList);// 创建物理计划
   }
   if (TSDB_CODE_SUCCESS == code) {
-    dumpQueryPlan(*pPlan);
+    dumpQueryPlan(*pPlan);// 转储 查询计划，转成 string
   }
   nodesReleaseAllocator(pCxt->allocatorId);
 

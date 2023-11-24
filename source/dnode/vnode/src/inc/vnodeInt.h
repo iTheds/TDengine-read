@@ -348,9 +348,9 @@ struct SVnode {
   TdThreadCond  poolNotEmpty;
   SVBufPool*    pPool;
   SVBufPool*    inUse;
-  SMeta*        pMeta;
+  SMeta*        pMeta;// 主要内容
   SSma*         pSma;
-  STsdb*        pTsdb;
+  STsdb*        pTsdb;// 主要内容
   SWal*         pWal;
   STQ*          pTq;
   SSink*        pSink;

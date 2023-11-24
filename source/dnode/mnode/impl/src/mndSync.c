@@ -359,10 +359,10 @@ void mndSyncCheckTimeout(SMnode *pMnode) {
   }
   taosThreadMutexUnlock(&pMgmt->lock);
 }
-
+// 异步过程
 int32_t mndSyncPropose(SMnode *pMnode, SSdbRaw *pRaw, int32_t transId) {
   SSyncMgmt *pMgmt = &pMnode->syncMgmt;
-
+  // 原生数据 raw 格式复原为 rpcMsg 
   SRpcMsg req = {.msgType = TDMT_MND_APPLY_MSG, .contLen = sdbGetRawTotalSize(pRaw)};
   if (req.contLen <= 0) return -1;
 
