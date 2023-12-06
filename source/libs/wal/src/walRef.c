@@ -77,6 +77,7 @@ void walUnrefVer(SWalRef *pRef) {
 }
 #endif
 
+/// 获取写入的位置？？？
 SWalRef *walRefFirstVer(SWal *pWal, SWalRef *pRef) {
   if (pRef == NULL) {
     pRef = walOpenRef(pWal);

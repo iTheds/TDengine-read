@@ -59,7 +59,7 @@ static int32_t tqAddTbNameToRsp(const STQ* pTq, int64_t uid, SMqDataRsp* pRsp, i
   metaReaderClear(&mr);
   return 0;
 }
-
+// pHandle 内部有 wal 结构， dataRsp 是一个消息包的形式进行执行，fetchOffsetNew
 int32_t tqScanData(STQ* pTq, const STqHandle* pHandle, SMqDataRsp* pRsp, STqOffsetVal* pOffset) {
   const STqExecHandle* pExec = &pHandle->execHandle;
   ASSERT(pExec->subType == TOPIC_SUB_TYPE__COLUMN);

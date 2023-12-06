@@ -85,6 +85,7 @@ int32_t mndInitSubscribe(SMnode *pMnode) {
   return sdbSetTable(pMnode->pSdb, table);
 }
 
+/// 
 static SMqSubscribeObj *mndCreateSub(SMnode *pMnode, const SMqTopicObj *pTopic, const char *subKey) {
   SMqSubscribeObj *pSub = tNewSubscribeObj(subKey);
   if (pSub == NULL) {
@@ -104,7 +105,7 @@ static SMqSubscribeObj *mndCreateSub(SMnode *pMnode, const SMqTopicObj *pTopic, 
 
   return pSub;
 }
-/// 创建 subcribe ,构建成 SMsgHead 和 SMqRebVgReq req 的组合 内存,返回
+/// 创建 subcribe 变更请求 ,构建成 SMsgHead 和 SMqRebVgReq req 的组合 内存,返回
 static int32_t mndBuildSubChangeReq(void **pBuf, int32_t *pLen, const SMqSubscribeObj *pSub,
                                     const SMqRebOutputVg *pRebVg) {
   SMqRebVgReq req = {0};

@@ -313,6 +313,7 @@ static int32_t mndProcessMqTimerMsg(SRpcMsg *pMsg) {
         .pCont = pRebMsg,
         .contLen = sizeof(SMqDoRebalanceMsg),
     };
+    // 从 mnode read 发送到 mnode write ， 通过方法 mndProcessRebalanceReq 执行
     tmsgPutToQueue(&pMnode->msgCb, WRITE_QUEUE, &rpcMsg);
   } else {
     taosHashCleanup(pRebMsg->rebSubHash);
@@ -526,6 +527,7 @@ int32_t mndSetConsumerCommitLogs(SMnode *pMnode, STrans *pTrans, SMqConsumerObj 
   return 0;
 }
 
+// 订阅的过程
 static int32_t mndProcessSubscribeReq(SRpcMsg *pMsg) {
   SMnode         *pMnode = pMsg->info.node;
   char           *msgStr = pMsg->pCont;
@@ -655,6 +657,7 @@ static int32_t mndProcessSubscribeReq(SRpcMsg *pMsg) {
     }
 
     if (mndSetConsumerCommitLogs(pMnode, pTrans, pConsumerNew) != 0) goto SUBSCRIBE_OVER;
+    // 实际是更新 mndConsumerActionUpdate
     if (mndTransPrepare(pMnode, pTrans) != 0) goto SUBSCRIBE_OVER;
   }
 

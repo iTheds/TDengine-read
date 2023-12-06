@@ -165,7 +165,7 @@ static int32_t vmTsmaProcessCreate(SVnode *pVnode, SCreateVnodeReq *pReq) {
   }
   return 0;
 }
-// 创建一个 Vnode request 
+// 创建一个 Vnode 
 int32_t vmProcessCreateVnodeReq(SVnodeMgmt *pMgmt, SRpcMsg *pMsg) {
   SCreateVnodeReq req = {0};
   SVnodeCfg       vnodeCfg = {0};

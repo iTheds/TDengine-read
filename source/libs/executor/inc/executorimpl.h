@@ -164,6 +164,7 @@ typedef struct STaskStopInfo {
   SArray*  pStopInfo;
 } STaskStopInfo;
 
+// 执行计划
 struct SExecTaskInfo {
   STaskIdInfo   id;
   uint32_t      status;
@@ -217,6 +218,7 @@ typedef struct SExprSupp {
   SFilterInfo*    pFilterInfo;
 } SExprSupp;
 
+/// 执行树,算子链
 typedef struct SOperatorInfo {
   uint16_t               operatorType;
   int16_t                resultDataBlockId;

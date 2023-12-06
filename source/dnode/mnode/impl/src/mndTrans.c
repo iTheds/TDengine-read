@@ -793,7 +793,7 @@ static int32_t mndTransSync(SMnode *pMnode, STrans *pTrans) {
 
   mInfo("trans:%d, sync to other mnodes, stage:%s createTime:%" PRId64, pTrans->id, mndTransStr(pTrans->stage),
         pTrans->createdTime);
-  int32_t code = mndSyncPropose(pMnode, pRaw, pTrans->id);
+  int32_t code = mndSyncPropose(pMnode, pRaw, pTrans->id);// 异步过程
   if (code != 0) {
     mError("trans:%d, failed to sync, errno:%s code:%s createTime:%" PRId64 " saved trans:%d", pTrans->id, terrstr(),
            tstrerror(code), pTrans->createdTime, pMnode->syncMgmt.transId);

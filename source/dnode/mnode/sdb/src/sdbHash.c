@@ -144,9 +144,9 @@ static int32_t sdbInsertRow(SSdb *pSdb, SHashObj *hash, SSdbRaw *pRaw, SSdbRow *
 
   pRow->refCount = 0;
   pRow->status = pRaw->status;
-  sdbPrintOper(pSdb, pRow, "insert");
+  sdbPrintOper(pSdb, pRow, "insert");//输出调试信息而已
 
-  if (taosHashPut(hash, pRow->pObj, keySize, &pRow, sizeof(void *)) != 0) {
+  if (taosHashPut(hash, pRow->pObj, keySize, &pRow, sizeof(void *)) != 0) {// 存放关键点
     sdbUnLock(pSdb, type);
     sdbFreeRow(pSdb, pRow, false);
     terrno = TSDB_CODE_OUT_OF_MEMORY;
@@ -156,7 +156,7 @@ static int32_t sdbInsertRow(SSdb *pSdb, SHashObj *hash, SSdbRaw *pRaw, SSdbRow *
   int32_t     code = 0;
   SdbInsertFp insertFp = pSdb->insertFps[pRow->type];
   if (insertFp != NULL) {
-    code = (*insertFp)(pSdb, pRow->pObj);
+    code = (*insertFp)(pSdb, pRow->pObj);// main func
     if (code != 0) {
       code = terrno;
       taosHashRemove(hash, pRow->pObj, keySize);
@@ -250,7 +250,7 @@ int32_t sdbWriteWithoutFree(SSdb *pSdb, SSdbRaw *pRaw) {
 
   switch (pRaw->status) {
     case SDB_STATUS_CREATING:
-      code = sdbInsertRow(pSdb, hash, pRaw, pRow, keySize);
+      code = sdbInsertRow(pSdb, hash, pRaw, pRow, keySize);// pRaw->hash, pRow = pRaw->decodeFps()
       break;
     case SDB_STATUS_READY:
     case SDB_STATUS_DROPPING:

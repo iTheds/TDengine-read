@@ -163,7 +163,7 @@ typedef struct SSdbRow {
   ESdbType   type;
   ESdbStatus status;
   int32_t    refCount;
-  char       pObj[];
+  char       pObj[];  // key ??
 } SSdbRow;
 // 实现了一个保存表、流元信息的结构，在 mnode 中保存
 typedef struct SSdb {

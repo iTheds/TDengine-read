@@ -561,14 +561,17 @@ int32_t tqProcessPollReq(STQ* pTq, SRpcMsg* pMsg) {
     }
   }
 
+  // 如果是列订阅，在此处执行完成后将返回，
   if (pHandle->execHandle.subType == TOPIC_SUB_TYPE__COLUMN) {// 如果是列订阅
-    SMqDataRsp dataRsp = {0};
+    SMqDataRsp dataRsp = {0};// 最后会放在 stq 的 pPushMgr 中
     tqInitDataRsp(&dataRsp, &req, pHandle->execHandle.subType);// 初始化响应包
     // lock
     taosWLockLatch(&pTq->pushLock);
+    // 根据此传入参数，其中， pHandle 内部有 wal 结构， dataRsp 是一个消息包的形式进行执行，fetchOffsetNew 是消费位点，通过这些内容查找数据
     tqScanData(pTq, pHandle, &dataRsp, &fetchOffsetNew);// 扫描表
 
 #if 1
+  // 如果是 log 模式
     if (dataRsp.blockNum == 0 && dataRsp.reqOffset.type == TMQ_OFFSET__LOG &&
         dataRsp.reqOffset.version == dataRsp.rspOffset.version) {
       STqPushEntry* pPushEntry = taosMemoryCalloc(1, sizeof(STqPushEntry));

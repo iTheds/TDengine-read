@@ -195,7 +195,7 @@ int32_t     walReadVer(SWalReader *pRead, int64_t ver);
 int32_t     walReadSeekVer(SWalReader *pRead, int64_t ver);
 int32_t     walNextValidMsg(SWalReader *pRead);
 
-// only for tq usage
+// only for tq usage// RAFT 算法
 void    walSetReaderCapacity(SWalReader *pRead, int32_t capacity);
 int32_t walFetchHead(SWalReader *pRead, int64_t ver, SWalCkHead *pHead);
 int32_t walFetchBody(SWalReader *pRead, SWalCkHead **ppHead);
