@@ -69,7 +69,7 @@ void walCloseReader(SWalReader *pReader) {
   taosMemoryFreeClear(pReader->pHead);
   taosMemoryFree(pReader);
 }
-
+// 下一个 msg 是否有效
 int32_t walNextValidMsg(SWalReader *pReader) {
   int64_t fetchVer = pReader->curVersion;
   int64_t lastVer = walGetLastVer(pReader->pWal);
@@ -345,6 +345,9 @@ static int32_t walSkipFetchBodyNew(SWalReader *pRead) {
   return 0;
 }
 
+/*
+读取出一个 SWalCkHead
+*/
 int32_t walFetchHead(SWalReader *pRead, int64_t ver, SWalCkHead *pHead) {
   int64_t code;
   int64_t contLen;
@@ -371,6 +374,7 @@ int32_t walFetchHead(SWalReader *pRead, int64_t ver, SWalCkHead *pHead) {
   }
 
   while (1) {
+    // 读出
     contLen = taosReadFile(pRead->pLogFile, pHead, sizeof(SWalCkHead));
     if (contLen == sizeof(SWalCkHead)) {
       break;

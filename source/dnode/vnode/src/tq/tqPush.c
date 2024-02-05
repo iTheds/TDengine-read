@@ -211,7 +211,11 @@ int32_t tqPushMsgNew(STQ* pTq, void* msg, int32_t msgLen, tmsg_t msgType, int64_
   return 0;
 }
 #endif
-
+/**
+ * 其直接使用 `STQ` 中的 list<STqPushEntry>, 对其进行迭代, 然后执行 task , 并且将数据放入到 `SMqDataRsp` 中, 然后调用 `tqPushDataRsp` 发送 `STqPushEntry` 中的数据. 
+之后删除这些 STqPushEntry , 是否代表者其只是一次性的???
+vnodeProcessWriteMsg 中调用， 是写入后的统一回应， 有可能作为数据回应
+*/
 int tqPushMsg(STQ* pTq, void* msg, int32_t msgLen, tmsg_t msgType, int64_t ver) {
   tqDebug("vgId:%d, tq push msg ver %" PRId64 ", type: %s", pTq->pVnode->config.vgId, ver, TMSG_INFO(msgType));
 

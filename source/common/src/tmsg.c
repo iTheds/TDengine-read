@@ -48,7 +48,9 @@ int32_t tInitSubmitMsgIter(const SSubmitReq *pMsg, SSubmitMsgIter *pIter) {
 
   return 0;
 }
-
+/* 获取提交信息的下一个，
+实际上， 是获取 pTter 中的下一个， 并且将内容存放到 pIter 中， 然后将 pPBlock 的指针指向该位置。
+*/
 int32_t tGetSubmitMsgNext(SSubmitMsgIter *pIter, SSubmitBlk **pPBlock) {
   ASSERT(pIter->len >= 0);
 
@@ -72,6 +74,8 @@ int32_t tGetSubmitMsgNext(SSubmitMsgIter *pIter, SSubmitBlk **pPBlock) {
   if (pIter->len == pIter->totalLen) {
     *pPBlock = NULL;
   } else {
+    // 移动到 下一个内容， 改变 pPBlock 指针 ，并且渲染到当前的 pIter
+    // ((void *)((char *)(pIter->pMsg) + (pIter->len)))
     *pPBlock = (SSubmitBlk *)POINTER_SHIFT(pIter->pMsg, pIter->len);
     pIter->uid = htobe64((*pPBlock)->uid);
     pIter->suid = htobe64((*pPBlock)->suid);

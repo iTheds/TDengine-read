@@ -360,7 +360,7 @@ int32_t taosCloseFile(TdFilePtr *ppFile) {
   *ppFile = NULL;
   return code;
 }
-
+// 读取 count 长度的数据 存入到 buf 中
 int64_t taosReadFile(TdFilePtr pFile, void *buf, int64_t count) {
 #if FILE_WITH_LOCK
   taosThreadRwlockRdlock(&(pFile->rwlock));

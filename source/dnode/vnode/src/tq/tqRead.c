@@ -15,6 +15,7 @@
 
 #include "tq.h"
 
+/*对于 STqHandle 中的指定表是否可用*/
 bool isValValidForTable(STqHandle* pHandle, SWalCont* pHead) {
   if (pHandle->execHandle.subType != TOPIC_SUB_TYPE__TABLE) {
     return true;
@@ -185,6 +186,10 @@ end:
   return tbSuid == realTbSuid;
 }
 
+// 订阅发布中使用了该接口
+/*
+取出日志中的一条数据， 
+*/
 int64_t tqFetchLog(STQ* pTq, STqHandle* pHandle, int64_t* fetchOffset, SWalCkHead** ppCkHead) {
   int32_t code = 0;
   taosThreadMutexLock(&pHandle->pWalReader->mutex);
@@ -295,6 +300,7 @@ void tqCloseReader(STqReader* pReader) {
   taosMemoryFree(pReader);
 }
 
+/* 校验版本*/
 int32_t tqSeekVer(STqReader* pReader, int64_t ver) {
   if (walReadSeekVer(pReader->pWalReader, ver) < 0) {
     ASSERT(pReader->pWalReader->curInvalid);
@@ -305,11 +311,13 @@ int32_t tqSeekVer(STqReader* pReader, int64_t ver) {
   return 0;
 }
 
+/* 将 pReader 内的 msg 数据往后移动 ret 中所标记的单位长度， 并把该数据放入到 ret 中*/
 int32_t tqNextBlock(STqReader* pReader, SFetchRet* ret) {
   bool fromProcessedMsg = pReader->pMsg != NULL;
 
   while (1) {
-    if (!fromProcessedMsg) {
+    if (!fromProcessedMsg) {// 如果 read 中的 SSubmitReq 为 NULL
+    // 判断下一个是否有效
       if (walNextValidMsg(pReader->pWalReader) < 0) {
         pReader->ver =
             pReader->pWalReader->curVersion - (pReader->pWalReader->curInvalid | pReader->pWalReader->curStopped);
@@ -361,7 +369,8 @@ int32_t tqNextBlock(STqReader* pReader, SFetchRet* ret) {
 
 int32_t tqReaderSetDataMsg(STqReader* pReader, const SSubmitReq* pMsg, int64_t ver) {
   pReader->pMsg = pMsg;
-
+  
+  // 根据 msg 初始化 SSubmitMsgIter 
   if (tInitSubmitMsgIter(pMsg, &pReader->msgIter) < 0) return -1;
   while (true) {
     if (tGetSubmitMsgNext(&pReader->msgIter, &pReader->pBlock) < 0) return -1;
@@ -370,6 +379,7 @@ int32_t tqReaderSetDataMsg(STqReader* pReader, const SSubmitReq* pMsg, int64_t v
 
   if (tInitSubmitMsgIter(pMsg, &pReader->msgIter) < 0) return -1;
   pReader->ver = ver;
+  // 重置
   memset(&pReader->blkIter, 0, sizeof(SSubmitBlkIter));
   return 0;
 }
@@ -397,7 +407,9 @@ bool tqNextDataBlock(STqReader* pReader) {
   }
   return false;
 }
-
+/**
+ * 
+*/
 int32_t tqMaskBlock(SSchemaWrapper* pDst, SSDataBlock* pBlock, const SSchemaWrapper* pSrc, char* mask) {
   int32_t code;
 

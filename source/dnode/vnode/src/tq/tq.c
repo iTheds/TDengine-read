@@ -793,7 +793,7 @@ int32_t tqProcessDelCheckInfoReq(STQ* pTq, int64_t version, char* msg, int32_t m
 int32_t tqProcessSubscribeReq(STQ* pTq, int64_t version, char* msg, int32_t msgLen) {
   SMqRebVgReq req = {0};
   tDecodeSMqRebVgReq(msg, &req);
-  // todo lock
+  // todo lock // req.subkey 由 topic 和 cgroup 共同组成
   STqHandle* pHandle = taosHashGet(pTq->pHandle, req.subKey, strlen(req.subKey));
   if (pHandle == NULL) {
     if (req.oldConsumerId != -1) {
@@ -841,7 +841,7 @@ int32_t tqProcessSubscribeReq(STQ* pTq, int64_t version, char* msg, int32_t msgL
       pHandle->execHandle.task =
           qCreateQueueExecTaskInfo(pHandle->execHandle.execCol.qmsg, &handle, &pHandle->execHandle.numOfCols, NULL);
       ASSERT(pHandle->execHandle.task);
-      void* scanner = NULL;
+      void* scanner = NULL;// SStreamScanInfo
       qExtractStreamScanner(pHandle->execHandle.task, &scanner);
       ASSERT(scanner);
       pHandle->execHandle.pExecReader = qExtractReaderFromStreamScanner(scanner);

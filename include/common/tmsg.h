@@ -2601,10 +2601,10 @@ typedef struct {
   int32_t vgId;
   int64_t oldConsumerId;
   int64_t newConsumerId;
-  char    subKey[TSDB_SUBSCRIBE_KEY_LEN];
+  char    subKey[TSDB_SUBSCRIBE_KEY_LEN];// 订阅 key //// req.subkey 由 topic 和 cgroup 共同组成
   int8_t  subType;
   int8_t  withMeta;
-  char*   qmsg;
+  char*   qmsg; // 使用到: 解为 SSubplan 
   int64_t suid;
 } SMqRebVgReq;
 
@@ -2640,7 +2640,7 @@ static FORCE_INLINE void* tDecodeSMqRebVgReq(const void* buf, SMqRebVgReq* pReq)
   }
   return (void*)buf;
 }
-
+// topic 辅助信息
 typedef struct {
   char    topic[TSDB_TOPIC_FNAME_LEN];
   int64_t ntbUid;

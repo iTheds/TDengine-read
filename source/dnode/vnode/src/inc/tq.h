@@ -78,6 +78,9 @@ typedef struct {
   SHashObj* pFilterOutTbUid;
 } STqExecDb;
 
+/*
+执行模块中， 应当具有关于算子执行的信息
+*/
 typedef struct {
   int8_t subType;
 
@@ -91,6 +94,7 @@ typedef struct {
   int32_t numOfCols;  // number of out pout column, temporarily used
 } STqExecHandle;
 
+// 针对 cgroup 和 topic 之间的关系
 typedef struct {
   // info
   char    subKey[TSDB_SUBSCRIBE_KEY_LEN];
@@ -102,10 +106,10 @@ typedef struct {
 
   SWalReader* pWalReader;
 
-  SWalRef* pRef;
+  SWalRef* pRef;  // wal 引用，同 SWal
 
   // push
-  STqPushHandle pushHandle;
+  STqPushHandle pushHandle;// 未使用的成员
 
   // exec
   STqExecHandle execHandle;
@@ -127,7 +131,7 @@ struct STQ {
 
   SHashObj* pPushMgr;    // consumerId -> STqPushEntry
   SHashObj* pHandle;     // subKey -> STqHandle
-  SHashObj* pCheckInfo;  // topic -> SAlterCheckInfo
+  SHashObj* pCheckInfo;  // topic -> STqCheckInfo
 
   STqOffsetStore* pOffsetStore;
 
@@ -151,7 +155,7 @@ int32_t tDecodeSTqHandle(SDecoder* pDecoder, STqHandle* pHandle);
 // tqRead
 int32_t tqScanTaosx(STQ* pTq, const STqHandle* pHandle, STaosxRsp* pRsp, SMqMetaRsp* pMetaRsp, STqOffsetVal* offset);
 int32_t tqScanData(STQ* pTq, const STqHandle* pHandle, SMqDataRsp* pRsp, STqOffsetVal* pOffset);
-int64_t tqFetchLog(STQ* pTq, STqHandle* pHandle, int64_t* fetchOffset, SWalCkHead** pHeadWithCkSum);
+int64_t tqFetchLog(STQ* pTq, STqHandle* pHandle, int64_t* fetchOffset, SWalCkHead** pHeadWithCkSum);// 第一个参数没有啥用处
 
 // tqExec
 int32_t tqTaosxScanLog(STQ* pTq, STqHandle* pHandle, SSubmitReq* pReq, STaosxRsp* pRsp);

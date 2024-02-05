@@ -231,7 +231,7 @@ SStreamDataSubmit* streamSubmitRefClone(SStreamDataSubmit* pSubmit);
 typedef struct {
   char* qmsg;
   // followings are not applicable to encoder and decoder
-  void* executor;
+  void* executor; // qTaskInfo_t
 } STaskExec;
 
 typedef struct {

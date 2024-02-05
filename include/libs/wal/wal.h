@@ -86,9 +86,10 @@ typedef struct {
   // sync meta
   SWalSyncInfo syncMeta;
 
-  char body[];
+  char body[];// 可能解出 SVCreateStbReq
 } SWalCont;
 
+// wal 读出的内容
 typedef struct {
   uint64_t magic;
   uint32_t cksumHead;
@@ -97,6 +98,7 @@ typedef struct {
 } SWalCkHead;
 #pragma pack(pop)
 
+// wal 写前日志
 typedef struct SWal {
   // cfg
   SWalCfg cfg;
@@ -123,6 +125,7 @@ typedef struct SWal {
   SWalCkHead writeHead;
 } SWal;
 
+// 
 typedef struct {
   int64_t refId;
   int64_t refVer;
@@ -138,7 +141,7 @@ typedef struct {
 } SWalFilterCond;
 
 typedef struct {
-  SWal          *pWal;
+  SWal          *pWal;  // 上级指针
   int64_t        readerId;
   TdFilePtr      pLogFile;
   TdFilePtr      pIdxFile;

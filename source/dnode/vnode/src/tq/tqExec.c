@@ -15,6 +15,7 @@
 
 #include "tq.h"
 
+// 将 pBlock 存放到 pRsp 中
 int32_t tqAddBlockDataToRsp(const SSDataBlock* pBlock, SMqDataRsp* pRsp, int32_t numOfCols, int8_t precision) {
   int32_t dataStrLen = sizeof(SRetrieveTableRsp) + blockGetEncodeSize(pBlock);
   void*   buf = taosMemoryCalloc(1, dataStrLen);
@@ -122,7 +123,13 @@ int32_t tqScanData(STQ* pTq, const STqHandle* pHandle, SMqDataRsp* pRsp, STqOffs
 
   return 0;
 }
-
+/// @brief 
+/// @param pTq 
+/// @param pHandle 
+/// @param pRsp 
+/// @param pMetaRsp [output]
+/// @param pOffset 
+/// @return 
 int32_t tqScanTaosx(STQ* pTq, const STqHandle* pHandle, STaosxRsp* pRsp, SMqMetaRsp* pMetaRsp, STqOffsetVal* pOffset) {
   const STqExecHandle* pExec = &pHandle->execHandle;
   qTaskInfo_t          task = pExec->task;

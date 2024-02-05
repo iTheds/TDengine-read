@@ -228,7 +228,7 @@ typedef struct STqReader {
   int64_t           ver;
   const SSubmitReq *pMsg;
   SSubmitBlk       *pBlock;
-  SSubmitMsgIter    msgIter;
+  SSubmitMsgIter    msgIter;// 存有一个数据
   SSubmitBlkIter    blkIter;
 
   SWalReader *pWalReader;
